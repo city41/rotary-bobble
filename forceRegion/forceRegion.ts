@@ -67,7 +67,7 @@ async function replace(
 
 	if (toBytes.length !== from.length) {
 		throw new Error(
-			`replaced: removing ${from.length} bytes but adding ${toBytes.length}, must be same number of bytes`
+			`replace: removing ${from.length} bytes but adding ${toBytes.length}, must be same number of bytes`
 		);
 	}
 
@@ -84,6 +84,48 @@ async function replace(
 	}
 
 	return data;
+}
+
+function formJsrAsm(numBytesToReplace: number, jsrAddress: number): string[] {
+	if (numBytesToReplace < 6) {
+		throw new Error(
+			`formJsr: not enough room. Need 6 bytes, only have ${numBytesToReplace}`
+		);
+	}
+
+	if (numBytesToReplace % 1 !== 0) {
+		throw new Error(
+			`formJsr: bytes to replace must be an even count, got ${numBytesToReplace}`
+		);
+	}
+
+	const numNops = (numBytesToReplace - 6) / 2;
+
+	const asmNops = new Array(numNops).fill(0).map(() => 'nop');
+	return asmNops.concat(`jsr $${jsrAddress.toString(16)}`);
+}
+
+let subroutineInsertEnd = 0x80000;
+
+async function replaceWithSubroutine(
+	data: number[],
+	from: number[],
+	subroutine: string[]
+): Promise<number[]> {
+	const subroutineBytes = await assemble(subroutine);
+
+	const subroutineStartAddress = subroutineInsertEnd - subroutineBytes.length;
+	const jsrAsm = await formJsrAsm(from.length, subroutineStartAddress);
+
+	const jsrAddedData = await replace(data, from, jsrAsm);
+
+	jsrAddedData.splice(
+		subroutineStartAddress,
+		subroutineBytes.length,
+		...subroutineBytes
+	);
+
+	return jsrAddedData;
 }
 
 async function writeZipWithNewProm(
@@ -104,6 +146,22 @@ async function writeZipWithNewProm(
 	console.log('about to execute', cpCmd);
 	const output2 = execSync(cpCmd, { cwd: romTmpDir });
 	console.log(output2.toString());
+}
+
+async function dumpProms(
+	unpatchedProm: number[],
+	patchedProm: number[],
+	dir: string
+): Promise<void> {
+	await mkdirp(path.resolve(dir));
+	await fsp.writeFile(
+		path.resolve(dir, 'unpatched.p1.bin'),
+		new Uint8Array(unpatchedProm)
+	);
+	await fsp.writeFile(
+		path.resolve(dir, 'patched.p1.bin'),
+		new Uint8Array(patchedProm)
+	);
 }
 
 async function main() {
@@ -128,11 +186,13 @@ async function main() {
 		['nop', 'move.b #1,d0']
 	);
 
-	patchedPromData = await replace(
+	patchedPromData = await replaceWithSubroutine(
 		patchedPromData,
 		[0x0c, 0x39, 0x00, 0x01, 0x00, 0x10, 0xfd, 0x83],
-		['cmpi.b #$0,$0010fd83']
+		['cmpi.b #$0,$0010fd83', 'rts']
 	);
+
+	await dumpProms(promData, patchedPromData, './proms');
 
 	const flippedBackPatch = flipBytes(patchedPromData);
 
