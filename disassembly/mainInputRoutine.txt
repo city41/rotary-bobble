@@ -1,0 +1,33 @@
+This looks to be the main input routine. The game jumps here at 3cea and preventing that jump prevents
+all input while playing a single player game. This routing also accesses BIOS memory addresses for P1CURRENT and P2CURRENT
+
+But does not access P1CHANGE or P2CHANGE, so possibly this routine is only concerned with the gun and left/right.
+
+00000ff2 : 122d a268      MOVE.B   -23960(A5),D1 
+00000ff6 : 1b41 a269      MOVE.B   D1,-23959(A5) 
+00000ffa : 1039 0010 fdac MOVE.B   $0010fdac,D0 
+00001000 : 4600                NOT.B    D0
+00001002 : 1b40 a268      MOVE.B   D0,-23960(A5) 
+00001006 : 4600                NOT.B    D0
+00001008 : c200                AND.B    D0,D1
+0000100a : 1b41 a26a      MOVE.B   D1,-23958(A5) 
+0000100e : 142d a25c      MOVE.B   -23972(A5),D2 
+00001012 : 1b42 a260      MOVE.B   D2,-23968(A5) 
+00001016 : 1039 0010 fd96 MOVE.B   $0010fd96,D0 
+0000101c : 4600                NOT.B    D0
+0000101e : 1b40 a25c      MOVE.B   D0,-23972(A5) 
+00001022 : 4600                NOT.B    D0
+00001024 : c400                AND.B    D0,D2
+00001026 : 1b42 a264      MOVE.B   D2,-23964(A5) 
+0000102a : 142d a25d      MOVE.B   -23971(A5),D2 
+0000102e : 1b42 a261      MOVE.B   D2,-23967(A5) 
+00001032 : 1039 0010 fd9c MOVE.B   $0010fd9c,D0 
+00001038 : 4600                NOT.B    D0
+0000103a : 1b40 a25d      MOVE.B   D0,-23971(A5) 
+0000103e : 4600                NOT.B    D0
+00001040 : c400                AND.B    D0,D2
+00001042 : 1b42 a265      MOVE.B   D2,-23963(A5) 
+00001046 : 1b7c 00ff a25e MOVE.B   #$ff,-23970(A5) 
+0000104c : 1b7c 0000 a266 MOVE.B   #$00,-23962(A5) 
+00001052 : 1b7c 00ff a25f MOVE.B   #$ff,-23969(A5) 
+00001058 : 1b7c 0000 a267 MOVE.B   #$00,-23961(A5) 
