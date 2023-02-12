@@ -37,18 +37,33 @@ async function assemble(asm: string[]): Promise<number[]> {
 	return Array.from(binBuffer);
 }
 
-async function replace(
+async function replaceAt(
 	data: number[],
-	from: number[],
-	to: string[]
+	address: string,
+	asm: string[]
 ): Promise<number[]> {
-	const toBytes = await assemble(to);
+	const asmBytes = await assemble(asm);
+
+	console.log('replaceAt: asmBytes', hexDump(asmBytes));
+
+	const index = parseInt(address, 16);
+	data.splice(index, asmBytes.length, ...asmBytes);
+
+	return data;
+}
+
+async function replaceWithPattern(
+	data: number[],
+	pattern: number[],
+	asm: string[]
+): Promise<number[]> {
+	const toBytes = await assemble(asm);
 
 	console.log('toBytes', hexDump(toBytes));
 
-	if (toBytes.length !== from.length) {
+	if (toBytes.length !== pattern.length) {
 		throw new Error(
-			`replace: removing ${from.length} bytes but adding ${toBytes.length}, must be same number of bytes`
+			`replace: removing ${pattern.length} bytes but adding ${toBytes.length}, must be same number of bytes`
 		);
 	}
 
@@ -56,10 +71,10 @@ async function replace(
 	let matchCount = 0;
 
 	while (i < data.length) {
-		if (areEqual(data, i, from)) {
+		if (areEqual(data, i, pattern)) {
 			console.log('replace: match found, splicing...');
-			data.splice(i, from.length, ...toBytes);
-			i += from.length;
+			data.splice(i, pattern.length, ...toBytes);
+			i += pattern.length;
 			matchCount += 1;
 		} else {
 			i += 1;
@@ -91,15 +106,23 @@ function formJsrAsm(numBytesToReplace: number, jsrAddress: number): string[] {
 
 async function replaceWithSubroutine(
 	data: number[],
-	from: number[],
-	subroutine: string[]
+	patch: Patch
 ): Promise<number[]> {
-	const subroutineBytes = await assemble(subroutine);
+	const subroutineBytes = await assemble(patch.patchAsm);
 
 	const subroutineStartAddress = subroutineInsertEnd - subroutineBytes.length;
-	const jsrAsm = await formJsrAsm(from.length, subroutineStartAddress);
 
-	const jsrAddedData = await replace(data, from, jsrAsm);
+	let jsrAsm;
+	let jsrAddedData: number[];
+
+	if ('address' in patch) {
+		jsrAsm = await formJsrAsm(6, subroutineStartAddress);
+		jsrAddedData = await replaceAt(data, patch.address, jsrAsm);
+	} else {
+		const patternBytes = toBytes(patch.pattern);
+		jsrAsm = await formJsrAsm(patternBytes.length, subroutineStartAddress);
+		jsrAddedData = await replaceWithPattern(data, patternBytes, jsrAsm);
+	}
 
 	console.log(
 		'replacedWithSubroutine: splicing in subroutine at',
@@ -114,6 +137,14 @@ async function replaceWithSubroutine(
 	return jsrAddedData;
 }
 
+async function replace(data: number[], patch: Patch): Promise<number[]> {
+	if ('address' in patch) {
+		return replaceAt(data, patch.address, patch.patchAsm);
+	} else {
+		return replaceWithPattern(data, toBytes(patch.pattern), patch.patchAsm);
+	}
+}
+
 function toBytes(b: string): number[] {
 	return b.split(' ').map((v) => parseInt(v, 16));
 }
@@ -123,13 +154,9 @@ async function doPatch(promData: number[], patch: Patch): Promise<number[]> {
 	console.log(patch.description ?? '(patch has no description)');
 
 	if (patch.subroutine) {
-		return replaceWithSubroutine(
-			promData,
-			toBytes(patch.pattern),
-			patch.patchAsm
-		);
+		return replaceWithSubroutine(promData, patch);
 	} else {
-		return replace(promData, toBytes(patch.pattern), patch.patchAsm);
+		return replace(promData, patch);
 	}
 }
 

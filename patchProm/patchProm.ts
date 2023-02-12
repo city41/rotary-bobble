@@ -52,7 +52,7 @@ function isPatch(obj: unknown): obj is Patch {
 
 	const p = obj as Patch;
 
-	return typeof p.pattern === 'string' && Array.isArray(p.patchAsm);
+	return Array.isArray(p.patchAsm);
 }
 
 function isPatchJSON(obj: unknown): obj is PatchJSON {

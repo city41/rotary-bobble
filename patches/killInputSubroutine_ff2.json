@@ -1,0 +1,10 @@
+[
+	{
+		"patchDescription": "Truncates a subroutine at ff2 that reads input"
+	},
+	{
+		"description": "Truncates the subroutine",
+		"address": "ff2",
+		"patchAsm": ["rts"]
+	}
+]
