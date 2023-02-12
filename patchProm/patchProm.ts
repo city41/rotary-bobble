@@ -82,15 +82,30 @@ async function dumpProms(
 	patchedProm: number[],
 	dir: string
 ): Promise<void> {
+	const unpatchedPath = path.resolve(dir, 'unpatched.p1.bin');
+	const patchedPath = path.resolve(dir, 'patched.p1.bin');
+
 	await mkdirp(path.resolve(dir));
-	await fsp.writeFile(
-		path.resolve(dir, 'unpatched.p1.bin'),
-		new Uint8Array(unpatchedProm)
-	);
-	await fsp.writeFile(
-		path.resolve(dir, 'patched.p1.bin'),
-		new Uint8Array(patchedProm)
-	);
+	await fsp.writeFile(unpatchedPath, new Uint8Array(unpatchedProm));
+	await fsp.writeFile(patchedPath, new Uint8Array(patchedProm));
+
+	try {
+		execSync(
+			`./disasm/dis68k < ${unpatchedPath} > ${path.resolve(
+				dir,
+				'unpatched.p1.txt'
+			)}`
+		);
+	} catch {}
+
+	try {
+		execSync(
+			`./disasm/dis68k < ${patchedPath} > ${path.resolve(
+				dir,
+				'patched.p1.txt'
+			)}`
+		);
+	} catch {}
 }
 
 async function writeZipWithNewProm(
