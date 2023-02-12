@@ -5,7 +5,8 @@
 	"author": "Matt Greer <matt.e.greer@gmail.com>",
 	"license": "MIT",
 	"scripts": {
-		"restore": "cp pbobblen.zip /home/matt/.gngeo/roms"
+		"restore": "cp pbobblen.zip /home/matt/.gngeo/roms",
+		"type-check": "yarn tsc --noemit"
 	},
 	"dependencies": {
 		"@types/mkdirp": "^1.0.2",
