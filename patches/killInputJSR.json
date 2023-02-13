@@ -4,7 +4,7 @@
 	},
 	{
 		"description": "Remove JSR with nops",
-		"address": "3d5a",
+		"address": "3cea",
 		"patchAsm": ["nop", "nop", "nop"]
 	}
 ]
