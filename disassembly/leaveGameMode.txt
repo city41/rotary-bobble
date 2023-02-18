@@ -1,0 +1,15 @@
+If the value at -24120(A5) is zero, then sets 1 at 10fdaf, which is the BIOS
+value for knowing the overall game mode
+
+0: init/boot animation
+1: title/demo
+2: game
+
+This snippet is "after the card is still inserted warning has elapsed,
+return to title screen"
+
+00003d7e : 4a2d a1c8      TST      -24120(A5)
+00003d82 : 660e                BNE      $00003d92
+00003d84 : 13fc 0001 0010 fdaf MOVE.B   #$01,$0010fdaf 
+00003d8c : 4ef9 00c0 0444 JMP      $00c0044
+00003d92 : 6000 fec6      BRA      $00003c5

@@ -3,6 +3,15 @@ all input while playing a single player game. This routing also accesses BIOS me
 
 It never accesses BIOS_PxCHANGE, but A does not work in game so likely this routine handles the shot too
 
+- A5 is the only address register used throughout, what does it get set to before calling this routine?
+
+
+call sites
+-----------
+00003cea : 4eb9 0000 0ff2 JSR      $00000ffu
+00003cf0 : 4eb9 0000 2dda JSR      $00002dda
+
+
 00000ff2 : 122d a268      MOVE.B   -23960(A5),D1 
 00000ff6 : 1b41 a269      MOVE.B   D1,-23959(A5) 
 00000ffa : 1039 0010 fdac MOVE.B   $BIOS_P2CURRENT,D0 
@@ -31,3 +40,19 @@ It never accesses BIOS_PxCHANGE, but A does not work in game so likely this rout
 0000104c : 1b7c 0000 a266 MOVE.B   #$00,-23962(A5) 
 00001052 : 1b7c 00ff a25f MOVE.B   #$ff,-23969(A5) 
 00001058 : 1b7c 0000 a267 MOVE.B   #$00,-23961(A5) 
+
+
+right after this function returns it calls this one
+
+00002dda : 41ed d0d0      LEA      -12080(A5),A0
+00002dde : 303c 017d      MOVE.W   #$017d,D0 
+00002de2 : d0c0                ADDA.W   D0,A0
+00002de4 : d0c0                ADDA.W   D0,A0
+00002de6 : 906d d6d6      SUB.W    -10538(A5),D0
+00002dea : 5340                SUBQ.W   #1,D0
+00002dec : 6b06                BMI      $00002df4
+00002dee : 4260                CLR.W    -(A0)
+00002df0 : 51c8 fffc      DBF      D0,$00002dee
+00002df4 : 2b7c 0010 5866 da66 MOVE.L   #$00105866,-9626(A5) 
+00002dfc : 42ad d866      CLR.L    -10138(A5)
+00002e00 : 4e75                RTS      

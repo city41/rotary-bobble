@@ -1,0 +1,10 @@
+[
+	{
+		"patchDescription": "Removes the branch that takes you from 'card is still inserted' back to title"
+	},
+	{
+		"description": "Remove branch with nops",
+		"address": "3d82",
+		"patchAsm": ["nop", "nop", "nop", "nop", "nop", "nop", "nop", "nop"]
+	}
+]
