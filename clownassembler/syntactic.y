@@ -33,8 +33,6 @@
 
 #define YYNOMEM
 
-#define M68KASM_error 1
-
 #define YYSTYPE M68KASM_STYPE
 
 #define CREATE_LIST_TYPE(TYPE)\

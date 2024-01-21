@@ -1,5 +1,6 @@
 import path from 'node:path';
 import fsp from 'node:fs/promises';
+import mkdirp from 'mkdirp';
 import { execSync } from 'node:child_process';
 import { Patch } from './types';
 import { asmTmpDir } from './dirs';
@@ -21,18 +22,23 @@ function areEqual(
 }
 
 async function assemble(asm: string[]): Promise<number[]> {
+	await mkdirp(asmTmpDir);
 	const inputAsmPath = path.resolve(asmTmpDir, 'tmp.asm');
 	const outputBinPath = path.resolve(asmTmpDir, 'tmp.bin');
 
 	const asmSrc = asm.map((a) => `\t${a}`).join('\n');
 	console.log('asm\n', asmSrc);
+
+	console.log('writing asm to', inputAsmPath);
 	await fsp.writeFile(inputAsmPath, asmSrc);
 
-	execSync(
-		`./clownassembler/clownassembler -i ${inputAsmPath} -o ${outputBinPath}`
-	);
+	const assembleCommand = `./clownassembler/clownassembler -i ${inputAsmPath} -o ${outputBinPath}`;
+	console.log('about to assemble', assembleCommand);
+	execSync(assembleCommand);
 
 	const binBuffer = await fsp.readFile(outputBinPath);
+
+	console.log('binary length', binBuffer.length);
 
 	return Array.from(binBuffer);
 }

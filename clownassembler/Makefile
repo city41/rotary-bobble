@@ -16,10 +16,7 @@ lexical.c lexical.h: lexical.l syntactic.h
 	$(LEX) --outfile=lexical.c --header-file=lexical.h $<
 
 syntactic.c syntactic.h: syntactic.y
-	$(YACC) -d syntactic.y
-	mv syntactic.tab.h syntactic.h
-	mv syntactic.tab.c syntactic.c
-	$(YACC) --output=syntactic.c $(YFLAGS) $<
+	$(YACC) --output=syntactic.c --defines=syntactic.h $(YFLAGS) $<
 
 assemblers: clownassembler clownassembler_asm68k
 

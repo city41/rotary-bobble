@@ -165,7 +165,7 @@ async function main(patchJsonPath: string) {
 	const flippedBackPatch = flipBytes(patchedPromData);
 
 	console.log('length after patch', flippedBackPatch.length);
-	const writePath = '/home/matt/.gngeo/roms/pbobblen.zip';
+	const writePath = '/home/matt/mame/roms/pbobblen.zip';
 	await writeZipWithNewProm(flippedBackPatch, writePath);
 
 	console.log('written patched rom to', writePath);
