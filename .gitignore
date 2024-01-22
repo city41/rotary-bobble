@@ -38,4 +38,6 @@ Thumbs.db
 *.c4
 *.flipped
 *.zip
+*.neo
 proms/
+toneosd/
