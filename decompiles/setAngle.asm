@@ -90,3 +90,27 @@ void setShooterAngle(s16 angleDelta, s16 *coolDown, s16 *shooterAngle) {
     angleDelta = angleDelta << 1;
     *coolDown = *(0x2f6c0 + angleDelta);
 }
+
+void setShooterAngleFromInput(s16* shooterAngle) {
+    u8 input = *((u8*)REG_P1CNT);
+
+    // we want to save seven bits, ignoring a which as bit 4
+    u8 lrud = input & 0xf;
+    u8 bc = (input & 0x7f) >> 5;
+    s8 finalPositiveValue = (s8)((bc << 4) | lrud);
+
+    s8 finalValue = finalPositiveValue;
+    if (input & 0x80) {
+        finalValue = finalValue * -1;
+    }
+
+    if (finalValue > 60) {
+        finalValue = 60;
+    }
+
+    if (finalValue < -60) {
+        finalValue = 60;
+    }
+    
+    *shooterAngle = finalValue;
+}
