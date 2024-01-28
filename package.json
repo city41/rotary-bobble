@@ -7,7 +7,7 @@
 	"scripts": {
 		"restore": "cp pbobblen.zip /home/matt/mame/roms",
 		"type-check": "yarn tsc --noemit",
-		"to-neosd": "(rm -rf toneosd && mkdir toneosd && cp /home/matt/mame/roms/pbobblen.zip toneosd && cd toneosd && neobuilder -n RotaryBobble -u 2024 -g Puzzle ./pbobblen.zip)"
+		"to-neosd": "bash scripts/toneosd.sh"
 	},
 	"dependencies": {
 		"@types/mkdirp": "^1.0.2",
