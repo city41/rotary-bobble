@@ -1,0 +1,10 @@
+[
+	{
+		"patchDescription": "Kills the input JSR at <addr> with nops"
+	},
+	{
+		"description": "Remove JSR with nops",
+		"address": "3cea",
+		"patchAsm": ["nop", "nop", "nop"]
+	}
+]

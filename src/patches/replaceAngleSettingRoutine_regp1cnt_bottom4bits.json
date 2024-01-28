@@ -1,0 +1,22 @@
+[
+	{
+		"patchDescription": "Replaces the shooter angle setting routine with a value derived from p1 input"
+	},
+	{
+		"description": "Replaces the routine",
+		"address": "2f602",
+		"patchAsm": [
+			"move.l A4,D0 ; save A4, as the game needs it",
+			"movea.l #$300000,A4 ; load REG_P1CNT into A4",
+			"move.l #0,D1 ; make sure D1 is totally zeroed",
+			"move.b (A4),D1 ; read the current state of p1 input into D1",
+			"not.b D1 ; flip the input, as low is active",
+			"move.l #$0000000f,d2 ; load 0x0000000f into d2 for the and instruction",
+			"and.w d2,d1 ; clear out the top 28 bits",
+			"movea.l #$108262,A4 ; have A4 point to the angle memory address",
+			"move.w D1,(A4) ; put D1 which is now (0,15) as the angle",
+			"movea.l D0,A4 ; restore A4 as the game needs it",
+			"rts"
+		]
+	}
+]

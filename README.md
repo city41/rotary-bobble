@@ -4,13 +4,15 @@ README Last updated: Jan 28, 2024
 
 A ROM hack to add rotary controls to the Neo Geo game Puzzle Bobble
 
+![video demo screenshot](https://github.com/city41/rotary-bobble/blob/main/videoScreenshot.png?raw=true)
+
 [Video demonstration](https://www.youtube.com/shorts/RZggReSwxVM)
 
 ## Status
 
 ### ROM Hack
 
-`patches/replaceAngleSettingRoutine_regp2cnt_all7bits.json` successfully patches in a routine where it reads player two's input, and sets the angle of the player one shooter to (-60,60), depending on the values of CB and RLDU. CBRLDU's bits form a six bit value maxing out at 63, which is then clamped to 60 if needed. If D is pressed, the value is made negative.
+`src/patches/replaceAngleSettingRoutine_regp2cnt_all7bits.json` successfully patches in a routine where it reads player two's input, and sets the angle of the player one shooter to (-60,60), depending on the values of CB and RLDU. CBRLDU's bits form a six bit value maxing out at 63, which is then clamped to 60 if needed. If D is pressed, the value is made negative.
 
 This is reading on player two and impacting player one. This is because getting the ROM working on say a NeoSD with the rotary controls taking over player one is difficult. This also means that to shoot the bubble, you need to press A on player one's controller. This is obviously not ideal, but this is where it's at right now. Much more work is needed (see below).
 
@@ -58,8 +60,8 @@ only tested on x64 Ubuntu 22. You will need a recent version of Node, I am using
 - `yarn install`
 - copy an untouched `pbobblen.zip`, that is intended for MAME, into the root directory of the repo
   - all zips are in gitignore, so the rom won't end up in the repo
-- change the path in `patchProm.ts` to your MAME rom directory, defaults to `/home/matt/mame/roms/pbobblen.zip`
-- run `ts-node patchProm/patchProm.ts patches/replaceAngleSettingRoutine_regp1cnt_all7bits.json`
+- change the path in `src/patchProm/patchProm.ts` to your MAME rom directory, defaults to `/home/matt/mame/roms/pbobblen.zip`
+- run `ts-node src/patchProm/patchProm.ts src/patches/replaceAngleSettingRoutine_regp1cnt_all7bits.json`
 
 Once patched, it will run in MAME if you start it on the command line. You can also run `yarn to-neosd` to create a .neo file. This requires [neosdconv](https://github.com/city41/neosdconv). I would prefer to use TerraOnion's NeoBuilder, but I've not gotten it to work properly. You will need to edit `scripts/toneosd.sh` and change my hardcoded paths.
 
