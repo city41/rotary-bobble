@@ -41,6 +41,11 @@
 
 			"movea.l #$108262,A4 ; have A4 point to the angle memory address",
 			"move.w D1,(A4) ; put D1 which is now (-60,60) as the angle",
+
+
+			"movea.l #$108284,A4 ; load delta address into A4",
+			"move.b #$f7,(A4) ; place a fake delta in, trying to get the rotation animation",
+
 			"movea.l D0,A4 ; restore A4 as the game needs it",
 			"rts"
 		]

@@ -128,13 +128,7 @@ async function writeZipWithNewProm(
 	console.log(output2.toString());
 }
 
-async function main(patchJsonPath: string) {
-	const patchJson = require(patchJsonPath);
-
-	if (!isPatchJSON(patchJson)) {
-		usage();
-	}
-
+async function main(patchJsonPaths: string[]) {
 	await fsp.rm(tmpDir, {
 		recursive: true,
 		force: true,
@@ -152,12 +146,21 @@ async function main(patchJsonPath: string) {
 
 	let patchedPromData = [...promData];
 
-	console.log('Starting patch');
-	console.log(patchJson.shift().patchDescription);
+	for (const patchJsonPath of patchJsonPaths) {
+		console.log('Starting patch', patchJsonPath);
 
-	for (const patch of patchJson) {
-		patchedPromData = await doPatch(patchedPromData, patch);
-		console.log('\n\n');
+		const patchJson = require(patchJsonPath);
+
+		if (!isPatchJSON(patchJson)) {
+			usage();
+		}
+
+		console.log(patchJson.shift().patchDescription);
+
+		for (const patch of patchJson) {
+			patchedPromData = await doPatch(patchedPromData, patch);
+			console.log('\n\n');
+		}
 	}
 
 	await dumpProms(promData, patchedPromData, './proms');
@@ -171,12 +174,14 @@ async function main(patchJsonPath: string) {
 	console.log('written patched rom to', writePath);
 }
 
-const patchJsonInputPath = process.argv[2];
+const patchJsonInputPaths = process.argv.slice(2);
 
-if (!patchJsonInputPath) {
+if (!patchJsonInputPaths?.length) {
 	usage();
 }
 
-main(path.resolve(process.cwd(), patchJsonInputPath)).catch(
-	(e) => console.error
+const finalPatchJsonPaths = patchJsonInputPaths.map((pjip) =>
+	path.resolve(process.cwd(), pjip)
 );
+
+main(finalPatchJsonPaths).catch((e) => console.error);

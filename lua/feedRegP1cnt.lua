@@ -33,8 +33,31 @@ function on_angle_write(offset, data)
     end
 end
 
+DIR_ADDR = 0x108284
+
+function on_dir_write(offset, data)
+    if (offset == DIR_ADDR) then
+        -- print(string.format("%x: %x", offset, data))
+        -- if (data ~= 0) then
+        --     return 0xfbfb
+        -- end
+    end
+end
+
+LSPCMODE_ADDR = 0x3c0006
+
+function on_lspcmode_write(offset, data)
+    if (offset == LSPCMODE_ADDR) then
+        -- disable auto animations
+        -- data = data | (1 << 3)
+        return data
+    end
+end
+
 reg_handler = mem:install_read_tap(REG_P1CNT, REG_P1CNT + 1, "reg", on_reg_read)
 angle_handler = mem:install_write_tap(ANGLE_ADDR, ANGLE_ADDR + 1, "angle", on_angle_write)
+dir_handler = mem:install_write_tap(DIR_ADDR, DIR_ADDR + 1, "dir", on_dir_write)
+lspcmode_handler = mem:install_write_tap(LSPCMODE_ADDR, LSPCMODE_ADDR + 1, "lspcmode", on_lspcmode_write)
 
 function tick()
   keyboard_events.poll()

@@ -1,0 +1,9 @@
+I think MAME is supposed to remember your command history, but it's not.
+
+So dumping useful/interesting commands here
+
+
+
+# when 2ec92 is hit,
+# dump to the console the current value of 108284 and continue
+bpset 2ec92,1,{ printf "end=%x",b@108284; g }
