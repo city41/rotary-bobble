@@ -51,12 +51,6 @@ Oh lots...
 The 68k assember, clownassembler, was copied into `clownassembler/` from https://github.com/Clownacy/clownassembler,
 it needs to be built with `cd clownassembler && make`. This is needed for creating patches.
 
-### dis68k
-
-The 68k disassembler, dis68k, was copied into `disasm/` from https://github.com/TomHarte/dis68k
-
-TODO: get rid of this, MAME makes great disassemblies.
-
 ## To patch
 
 only tested on x64 Ubuntu 22. You will need a recent version of Node, I am using 18.18.2
