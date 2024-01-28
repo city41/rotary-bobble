@@ -1,6 +1,6 @@
 [
 	{
-		"patchDescription": "Replaces the shooter angle setting routine with a value derived from p1 input"
+		"patchDescription": "Replaces the p1 shooter angle setting routine with a value derived from p2 input"
 	},
 	{
 		"description": "Replaces the routine",
