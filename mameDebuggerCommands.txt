@@ -10,3 +10,8 @@ bpset 2ec92,1,{ printf "end=%x",b@108284; g }
 
 # set a watchpoint for when a dino rotation tile gets sent to vram
 wpset 0x3c0002,1,w,wpdata == 8a51
+
+# break at 2cee if d1 is currently 5b80 and the word
+# A0 is pointing to is 8a50
+# this was used to break when the dino rotation tile is being set
+bpset 2cee,d1 == 5b80 && w@a0 == 8a50
