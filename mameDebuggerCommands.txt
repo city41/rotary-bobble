@@ -7,3 +7,6 @@ So dumping useful/interesting commands here
 # when 2ec92 is hit,
 # dump to the console the current value of 108284 and continue
 bpset 2ec92,1,{ printf "end=%x",b@108284; g }
+
+# set a watchpoint for when a dino rotation tile gets sent to vram
+wpset 0x3c0002,1,w,wpdata == 8a51
