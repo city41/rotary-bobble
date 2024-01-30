@@ -57,17 +57,17 @@
 
 			"ble.s skipPositiveSign",
 			"move.w #1,$108212 ; our sign is 1, set it into the sign variable",
-			"move.w #$F7,$108584 ; also place the dino value to grab later",
+			"move.w #$F700,$108584 ; also place the dino value to grab later",
 			"bra doneWithSign ; we set sign, let's bail",
 
 			"skipPositiveSign:",
 			"move.w #-1,$108212 ; our sign is -1, set it into the sign variable",
-			"move.w #$FB,$108584 ; also place the dino value to grab later",
+			"move.w #$FB00,$108584 ; also place the dino value to grab later",
 			"bra doneWithSign ; we set sign, let's bail",
 
 			"setSignToZero:",
 			"move.w #0,$108212 ; our fallback sign is 0, set it into the sign variable",
-			"move.w #$FF,$108584 ; also place the dino value to grab later",
+			"move.w #$FF00,$108584 ; also place the dino value to grab later",
 
 			"doneWithSign:",
 			"movea.l D0,A4 ; restore A4 as the game needs it",

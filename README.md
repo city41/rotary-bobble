@@ -16,6 +16,14 @@ A ROM hack to add rotary controls to the Neo Geo game Puzzle Bobble
 
 This is reading on player two and impacting player one. This is because getting the ROM working on say a NeoSD with the rotary controls taking over player one is difficult. This also means that to shoot the bubble, you need to press A on player one's controller. This is obviously not ideal, but this is where it's at right now. Much more work is needed (see below).
 
+#### The lastest ROM patch
+
+As of this writing, the latest and greatest is
+
+```
+ts-node src/patchProm/patchProm.ts src/patches/replaceAngleSettingRoutine_regp1cnt_all7bits_wgears_animation.json src/patches/setRotationSubroutine.json
+```
+
 ### Controller
 
 I have built a very rough controller prototype out of a breadboard and a Pico W.
