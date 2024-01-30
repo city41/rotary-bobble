@@ -47,23 +47,27 @@
 			"movea.l #$108262,A4 ; have A4 point to the angle memory address",
 			"move.w D1,(A4) ; put D1 which is now (-60,60) as the angle",
 
-			"; ------------- set direction --------------------;",
-			"; this doesnt work, crashes the game",
-
+			"; -----set direction of wheels and dino --------------------------;",
+			"; ---- we set the dino direction in a new memory location, so that;",
+			"; ---- setRotationSubroutine can then place it in the right spot -;",
+			"; ---- at the right time -----------------------------------------;",
 			"; compare to last frame's angle to get the sign",
 			"sub.w $108582,D1 ; diff last frame's angle with this frame's angle",
 			"beq.s setSignToZero",
 
 			"ble.s skipPositiveSign",
 			"move.w #1,$108212 ; our sign is 1, set it into the sign variable",
+			"move.w #$F7,$108584 ; also place the dino value to grab later",
 			"bra doneWithSign ; we set sign, let's bail",
 
 			"skipPositiveSign:",
 			"move.w #-1,$108212 ; our sign is -1, set it into the sign variable",
+			"move.w #$FB,$108584 ; also place the dino value to grab later",
 			"bra doneWithSign ; we set sign, let's bail",
 
 			"setSignToZero:",
 			"move.w #0,$108212 ; our fallback sign is 0, set it into the sign variable",
+			"move.w #$FF,$108584 ; also place the dino value to grab later",
 
 			"doneWithSign:",
 			"movea.l D0,A4 ; restore A4 as the game needs it",

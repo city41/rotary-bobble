@@ -1,0 +1,20 @@
+[
+	{
+		"patchDescription": "A subroutine to set the dino animation based on the latest rotary input"
+	},
+	{
+		"description": "Replace the memory write with a subroutine jump that will write the memory based on rotary",
+		"address": "2e986",
+		"subroutine": true,
+		"patchAsm": [
+			"move.w $108584, D1 ; grab the dino value the other routine calc'd for us",
+			"bne afterFirstTime ; if it isnt zero, it is because the other routine has set it",
+			"move.b #$FF,$82(A4) ; but if it is zero, we are on the first frame, so default to FF",
+			"bra done",
+			"afterFirstTime:",
+			"move.b D1,$82(A4)  ; and now set it into the place the game expects it to be",
+			"done:",
+			"rts"
+		]
+	}
+]

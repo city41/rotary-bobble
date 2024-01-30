@@ -72,3 +72,57 @@ allow game to set animation based on delta angle
 do 7bit routine
 -- set current angle based on input
 -- set current animation based on a calculated delta
+
+# Follow up
+
+None of the above worked. The game seems to actually be doing this
+
+```c
+s8 deltaAngle = origGame_readInputToGetDeltaAngle();
+...
+origGame_setShooterAngle(deltaAngle);
+...
+origGame_loadRotationAnimation(deltaAngle);
+```
+
+Basically the opposite of what I originally thought. Since the hack is replacing `setShooterAngle` with the new rotary routine, setting the rotation animation value there does nothing as the game just immediately clobbers it
+
+BTW: the hack is now saving the previous angle, forming a delta from the angels, and setting the wheel/gears animation accordingly in setShooterAngle. That works fine.
+
+I think what needs to happen is this
+
+```c
+s8 deltaAngle = origGame_readInputToGetDeltaAngle();
+...
+hack_setShooterAngle(deltaAngle);
+...
+origGame_loadRotationAnimation(deltaAngle);
+...
+hack_setRotationAnimationAgain();
+```
+
+Basically swoop back in again and reclobber the rotation animation. Obviously not the most elegant or efficient, but it should work fine. Possibly just replace `origGame_loadRotationAnimation` with `hack_setRotationAnimationAgain`
+
+set two breakpoints
+2f602 -> count how many hits
+2e98c -> count how many hits
+
+let run for a bit, break, set a normal 2e98c breakpoint, then compare counters. if 2f602 is one higher, then my suspicion is correct
+
+bpset 2f602,1,{ temp0++; g }
+bpset 2e98c,1,{ temp1++; printf "2f602=%d,2e98c=%d",temp0,temp1; g }
+
+# Follow up #2
+
+after setting watchpoints and breakpoints, I get this
+
+wrote, PC=2e98c
+read, PC=2eaa6
+read, PC=2eafe
+read, PC=2eb56
+read, PC=2eba4
+2f602
+
+repeated many times (once per frame)
+
+I think this is correct. I think each frame what is happening is the value gets written, the people who care about the value read it, then the hack routine comes along and sets it, but no one cares at that point.

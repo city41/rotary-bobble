@@ -149,7 +149,12 @@ async function main(patchJsonPaths: string[]) {
 	for (const patchJsonPath of patchJsonPaths) {
 		console.log('Starting patch', patchJsonPath);
 
-		const patchJson = require(patchJsonPath);
+		let patchJson;
+		try {
+			patchJson = require(patchJsonPath);
+		} catch (e) {
+			console.error('Error occured loading the patch', e);
+		}
 
 		if (!isPatchJSON(patchJson)) {
 			usage();
