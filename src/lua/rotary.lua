@@ -25,7 +25,7 @@ function angle_to_input(ang)
 
 	local d = ang < 0 and (1 << 7) or (0 << 7)
 	local cb = (absAng >> 4) << 5
-	local a = 0 << 4
+	local a = FIRE_BALL and (1 << 4) or (0 << 4)
 	local rldu = absAng & 0xf
 
 	local regp1cnt = d | cb | a | rldu
@@ -53,14 +53,9 @@ function next_angle()
 	return angle
 end
 
-counter = 0
-
 function on_p1cnt_read(offset)
 	if offset == REG_P1CNT and SEND_ANGLES then
-		counter = counter + 1
-		-- if counter % 20 == 0 then
 		next_angle()
-		-- end
 
 		return angle_to_input(angle)
 	end
@@ -88,7 +83,7 @@ function on_frame()
 	else
 		screen:draw_text(0, 0, "not sending", 0xffffffff, 0xff000000)
 	end
-	screen:draw_text(0, 8, string.format("regp1cnt: %x", angle_to_input(angle)), 0xffffffff, 0xff000000)
+	screen:draw_text(0, 8, string.format("regp1cnt: %x", angle_to_input(angle, false)), 0xffffffff, 0xff000000)
 end
 
 emu.register_frame_done(on_frame, "frame")

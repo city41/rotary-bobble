@@ -12,10 +12,10 @@
 			"movea.l #$108262,A4",
 			"move.w (A4),$108582",
 
-			"movea.l #$300000,A4 ; load REG_P2CNT into A4",
+			"; if reading REG_P1CNT directly, low is active. But the BIOS flips the bits for us",
+			"movea.l #$10fd96,A4 ; load BIOS_P1CURRENT into A4",
 			"move.l #0,D1 ; make sure D1 is totally zeroed",
 			"move.b (A4),D1 ; read the current state of p1 input into D1",
-			"not.b D1 ; flip the input, as low is active",
 			"move.l #0,D2 ; ensure d2 is zeroed",
 			"move.b d1,d2 ; copy d1 (the input) into d2",
 			"move.b d1,d5 ; copy d1 (the input) into d5 for the later negation",
@@ -70,6 +70,17 @@
 			"move.w #$FF00,$108584 ; also place the dino value to grab later",
 
 			"doneWithSign:",
+
+			"; --- now see if the player pressed A, if so, set 108585 to $10",
+			"; --- the game is expecting 108285 to be $10 when A is pressed",
+
+			"move.b $10fD97, D6 ; load BIOS_P1CHANGE into D6, going to see if A changed",
+			"lsr.b #4,D6 ; get A as the last bit",
+			"cmpi.b #1,d6 ; compare d6 to 1",
+			"bne skipSetA; A was not just pressed? no need to do anthing",
+			"move.b #$10, $108585 ; move $10 into our temporary location, so the other routine can grab it",
+
+			"skipSetA:",
 			"movea.l D0,A4 ; restore A4 as the game needs it",
 			"rts"
 		]
