@@ -56,8 +56,7 @@ def setPin(i, bit):
     pins[i].value(bit)
 
 while True:
-    potRawValue = potPin.read_u16()
-    angle = int(mapValue(192, 65200, MIN_ANGLE, MAX_ANGLE, potRawValue))
+    angle = 45
     angleBitplane = toBitplane(abs(angle))
 
     if angle < 0:
