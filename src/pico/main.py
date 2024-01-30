@@ -24,6 +24,13 @@ dirUPin = Pin(DIR_U, Pin.OUT)
 
 led = Pin("LED", Pin.OUT)
 
+# this switches the power supply mode, from one that is more efficent but has lots of noise,
+# to one that is more power hungry but smoother. This will smooth out the analog voltage readings
+# from the pot
+# this doesn't seem to make any difference...
+# psModePin = Pin(23, Pin.OUT)
+#psModePin.on()
+
 # on the Neo we will take REG_P1CNT [DCBARLDU] and massage it into [CBRLDU]
 # and D is the sign bit
 # so the pins here need to match, but flipped as least sig bit is on left here -> [UDLRBCD]
@@ -54,10 +61,23 @@ def setPin(i, bit):
 
     # pinResult[i] = str(bit)
     pins[i].value(bit)
+    
+STEP_DOWN_FACTOR = 270
+# this gives us roughly a 120 degree sweep on the physical pot
+EXTENT = 16250 // STEP_DOWN_FACTOR
+MIN_EXTENT = EXTENT
+MAX_EXTENT = (65535 // STEP_DOWN_FACTOR) - EXTENT
 
 while True:
-    potRawValue = potPin.read_u16()
-    angle = int(mapValue(192, 65200, MIN_ANGLE, MAX_ANGLE, potRawValue))
+    potRawValue = round(potPin.read_u16() / STEP_DOWN_FACTOR)
+    
+    if potRawValue < MIN_EXTENT:
+        potRawValue = MIN_EXTENT
+        
+    if potRawValue > MAX_EXTENT:
+        potRawValue = MAX_EXTENT
+    
+    angle = int(round(mapValue(MIN_EXTENT, MAX_EXTENT, MIN_ANGLE, MAX_ANGLE, potRawValue)))
     angleBitplane = toBitplane(abs(angle))
 
     if angle < 0:
