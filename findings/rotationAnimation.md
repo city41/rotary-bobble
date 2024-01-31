@@ -7,13 +7,17 @@ One of the dinos rotates the crank if any of LRUD are pressed
 
 stops rotating the crank once a max angle has been reached (-60 or 60)
 
-Memory address 108284 is a byte storing the current "delta angle"
+Memory address 108284 is a byte storing the current "shooter direction"
 
 - F7 if going right
 - FB if going left
 - FF if not moving
 
-If the delta value is not FF, then the corresponding rotation animation will get run
+## These values are likely due to reading input
+
+at 1012, the game reads in BIOS_P1CURRENT, and nots it. `~(BIOS_P1CURRENT)` would be `F7` if right is being held down, and `FB` if left is being held down. I'm starting to think the game is just storing off the current inputs into 108284.
+
+If the value is not FF, then the corresponding rotation animation will get run
 
 If we force this value to be F7, then the game will constanly move the shooter right. But
 if we do this and apply the 7bit input patch, the end result is just the rotate right

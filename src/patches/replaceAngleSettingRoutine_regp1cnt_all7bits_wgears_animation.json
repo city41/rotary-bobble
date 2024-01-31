@@ -56,31 +56,31 @@
 			"beq.s setSignToZero",
 
 			"ble.s skipPositiveSign",
-			"move.w #1,$108212 ; our sign is 1, set it into the sign variable",
-			"move.w #$F700,$108584 ; also place the dino value to grab later",
+			";;;;; move.w #1,$108212 ; our sign is 1, set it into the sign variable",
+			"move.b #$8,$108584 ; also place the dino value to grab later",
 			"bra doneWithSign ; we set sign, let's bail",
 
 			"skipPositiveSign:",
-			"move.w #-1,$108212 ; our sign is -1, set it into the sign variable",
-			"move.w #$FB00,$108584 ; also place the dino value to grab later",
+			";;;;; move.w #-1,$108212 ; our sign is -1, set it into the sign variable",
+			"move.b #$4,$108584 ; also place the dino value to grab later",
 			"bra doneWithSign ; we set sign, let's bail",
 
 			"setSignToZero:",
-			"move.w #0,$108212 ; our fallback sign is 0, set it into the sign variable",
-			"move.w #$FF00,$108584 ; also place the dino value to grab later",
+			";;;;; move.w #0,$108212 ; our fallback sign is 0, set it into the sign variable",
+			"move.b #$0,$108584 ; also place the dino value to grab later",
 
 			"doneWithSign:",
 
 			"; --- now see if the player pressed A, if so, set 108585 to $10",
 			"; --- the game is expecting 108285 to be $10 when A is pressed",
 
-			"move.b $10fD97, D6 ; load BIOS_P1CHANGE into D6, going to see if A changed",
-			"lsr.b #4,D6 ; get A as the last bit",
-			"cmpi.b #1,d6 ; compare d6 to 1",
-			"bne skipSetA; A was not just pressed? no need to do anthing",
-			"move.b #$10, $108585 ; move $10 into our temporary location, so the other routine can grab it",
+			";;;;; move.b $10fD97, D6 ; load BIOS_P1CHANGE into D6, going to see if A changed",
+			";;;;; lsr.b #4,D6 ; get A as the last bit",
+			";;;;; cmpi.b #1,d6 ; compare d6 to 1",
+			";;;;; bne skipSetA; A was not just pressed? no need to do anthing",
+			";;;;; move.b #$10, $108585 ; move $10 into our temporary location, so the other routine can grab it",
 
-			"skipSetA:",
+			";;;;; skipSetA:",
 			"movea.l D0,A4 ; restore A4 as the game needs it",
 			"rts"
 		]
