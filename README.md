@@ -34,6 +34,8 @@ It uses transistors to control RLDU, B, C and D. It has normal push buttons for 
 
 In theory the Pico could be powered by the +5v the Neo Geo provides to its controllers, but I've had issues with this. So for now powering the Pico via standard USB.
 
+![controller schematic](https://github.com/city41/rotary-bobble/blob/main/controllerSchematic.svg?raw=true)
+
 ## Still To Do
 
 Oh lots...
