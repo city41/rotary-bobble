@@ -10,9 +10,7 @@ https://github.com/city41/rotary-bobble/assets/141159/24a6326e-b90c-4391-a242-a1
 
 ### ROM Hack
 
-`src/patches/replaceAngleSettingRoutine_regp2cnt_all7bits.json` successfully patches in a routine where it reads player two's input, and sets the angle of the player one shooter to (-60,60), depending on the values of CB and RLDU. CBRLDU's bits form a six bit value maxing out at 63, which is then clamped to 60 if needed. If D is pressed, the value is made negative.
-
-This is reading on player two and impacting player one. This is because getting the ROM working on say a NeoSD with the rotary controls taking over player one is difficult. This also means that to shoot the bubble, you need to press A on player one's controller. This is obviously not ideal, but this is where it's at right now. Much more work is needed (see below).
+I have hacked in a routine that reads the rotary input, translates it into the shooter's angle, and sets that angle. The hack also does things like ensure the dinos and gears animate correctly, stuff like that. As I learn more about the game I'm realizing my hack could be a lot better, but this is a WIP.
 
 #### The lastest ROM patch
 
