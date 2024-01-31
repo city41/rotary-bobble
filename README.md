@@ -1,8 +1,8 @@
 # Rotary Bobble
 
-README Last updated: Jan 28, 2024
+README Last updated: Jan 31, 2024
 
-A ROM hack to add rotary controls to the Neo Geo game Puzzle Bobble
+A ROM hack, and matching controller, to add rotary controls to the Neo Geo game Puzzle Bobble
 
 https://github.com/city41/rotary-bobble/assets/141159/24a6326e-b90c-4391-a242-a1e90e2c0111
 
@@ -24,9 +24,9 @@ ts-node src/patchProm/patchProm.ts src/patches/replaceAngleSettingRoutine_regp1c
 
 ### Controller
 
-I have built a very rough controller prototype out of a breadboard and a Pico W.
+I have built a rough, but working, prototype
 
-![controller prototype](https://github.com/city41/rotary-bobble/blob/main/controllerPrototype.jpg?raw=true)
+![controller prototype](https://github.com/city41/rotary-bobble/blob/main/prototypeBoard.png?raw=true)
 
 It uses transistors to control RLDU, B, C and D. It has normal push buttons for A, Select, Start.
 
@@ -40,19 +40,17 @@ Oh lots...
 
 - Controller
 
-  - Add a toggle button to the controller to allow toggling between rotary and joystick controls
-  - once toggle is in place, change ROM hack to only work with player one inputs
-  - Build the controller into a case and switch from a breadboard to a solder prototype board
+  - circuit can likely be improved, just winged it...
   - Figure out a good power solution for the Pico
-  - Get real PCBs made
   - Instructions on how to create a controller
 
 - ROM Hack
-  - Set the rotation animation (the dinosaur turning the crank) whenever the shooter rotates
   - Change the name of the game from "Puzzle Bobble" to "Rotary Bobble" by changing graphics in the C ROM
-  - Force the region to Japan or also change "Bust A Move" to ummmm "Spin a Move"?
+  - Force the region to Europe or also change "Bust A Move" to ummmm "Spin a Move"?
   - Change the how to play to show rotary controls (big undertaking...)
   - Allow player two to use rotary controls
+  - bug fixes
+  - maybe a website that easily allows applying the hack?
 
 ## How to hack on this
 
