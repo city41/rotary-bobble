@@ -4,9 +4,7 @@ README Last updated: Jan 28, 2024
 
 A ROM hack to add rotary controls to the Neo Geo game Puzzle Bobble
 
-![video demo screenshot](https://github.com/city41/rotary-bobble/blob/main/videoScreenshot.png?raw=true)
-
-[Video demonstration](https://www.youtube.com/shorts/RZggReSwxVM)
+https://github.com/city41/rotary-bobble/assets/141159/24a6326e-b90c-4391-a242-a1e90e2c0111
 
 ## Status
 
