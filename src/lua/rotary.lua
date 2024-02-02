@@ -10,7 +10,7 @@ SEND_ANGLES = false
 -- | D | C | B | A | R | L | D | U |
 REG_P1CNT = 0x300000
 
-function angle_to_input(ang)
+function angle_to_input(ang, aIsPressed)
 	if ang < -60 then
 		ang = -60
 	end
@@ -25,7 +25,7 @@ function angle_to_input(ang)
 
 	local d = ang < 0 and (1 << 7) or (0 << 7)
 	local cb = (absAng >> 4) << 5
-	local a = FIRE_BALL and (1 << 4) or (0 << 4)
+	local a = aIsPressed and (1 << 4) or (0 << 4)
 	local rldu = absAng & 0xf
 
 	local regp1cnt = d | cb | a | rldu
@@ -37,14 +37,29 @@ function angle_to_input(ang)
 end
 
 angle = 61
+
+jump_angles = { -40, 50, -10, 60, 0, 1, 2, 3, 4, -58, 60 }
+jump_index = 1
+
+function next_angle_jump()
+	local jump_angle = jump_angles[jump_index]
+	jump_index = jump_index + 1
+
+	if jump_index > #jump_angles then
+		jump_index = 1
+	end
+
+	angle = jump_angle
+end
+
 delta = 1
 
-function next_angle()
+function next_angle_sweep()
 	if angle > 60 then
 		angle = 59
 		delta = -1
-	elseif angle < -60 then
-		angle = -59
+	elseif angle < 1 then
+		angle = 1
 		delta = 1
 	else
 		angle = angle + delta
@@ -53,11 +68,19 @@ function next_angle()
 	return angle
 end
 
-function on_p1cnt_read(offset)
-	if offset == REG_P1CNT and SEND_ANGLES then
-		next_angle()
+counter = 0
 
-		return angle_to_input(angle)
+function on_p1cnt_read(offset, data)
+	if offset == REG_P1CNT and SEND_ANGLES then
+		counter = counter + 1
+
+		if counter % 10 == 0 then
+			next_angle_sweep()
+		end
+
+		local aIsPressed = ((data >> 12) & 1) == 0
+
+		return angle_to_input(angle, aIsPressed)
 	end
 end
 
@@ -83,7 +106,6 @@ function on_frame()
 	else
 		screen:draw_text(0, 0, "not sending", 0xffffffff, 0xff000000)
 	end
-	screen:draw_text(0, 8, string.format("regp1cnt: %x", angle_to_input(angle, false)), 0xffffffff, 0xff000000)
 end
 
 emu.register_frame_done(on_frame, "frame")

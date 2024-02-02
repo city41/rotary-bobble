@@ -5,8 +5,6 @@ import { execSync } from 'node:child_process';
 import { Patch } from './types';
 import { asmTmpDir } from './dirs';
 
-let subroutineInsertEnd = 0x80000;
-
 function hexDump(bytes: number[]): string {
 	return bytes.map((b) => b.toString(16)).join(' ');
 }
@@ -112,9 +110,14 @@ function formJsrAsm(numBytesToReplace: number, jsrAddress: number): string[] {
 
 async function replaceWithSubroutine(
 	data: number[],
+	subroutineInsertEnd: number,
 	patch: Patch
-): Promise<number[]> {
+): Promise<{ patchedPromData: number[]; subroutineInsertEnd: number }> {
 	const subroutineBytes = await assemble(patch.patchAsm);
+	console.log(
+		'replaceWithSubroutine: subroutinebytes',
+		hexDump(subroutineBytes)
+	);
 
 	const subroutineStartAddress = subroutineInsertEnd - subroutineBytes.length;
 
@@ -131,8 +134,9 @@ async function replaceWithSubroutine(
 	}
 
 	console.log(
-		'replacedWithSubroutine: splicing in subroutine at',
-		subroutineStartAddress
+		`replacedWithSubroutine: splicing in subroutine at 0x${subroutineStartAddress.toString(
+			16
+		)}`
 	);
 	jsrAddedData.splice(
 		subroutineStartAddress,
@@ -140,7 +144,10 @@ async function replaceWithSubroutine(
 		...subroutineBytes
 	);
 
-	return jsrAddedData;
+	return {
+		patchedPromData: jsrAddedData,
+		subroutineInsertEnd: subroutineStartAddress,
+	};
 }
 
 async function replace(data: number[], patch: Patch): Promise<number[]> {
@@ -155,14 +162,21 @@ function toBytes(b: string): number[] {
 	return b.split(' ').map((v) => parseInt(v, 16));
 }
 
-async function doPatch(promData: number[], patch: Patch): Promise<number[]> {
+async function doPatch(
+	promData: number[],
+	subroutineInsertEnd: number,
+	patch: Patch
+): Promise<{ patchedPromData: number[]; subroutineInsertEnd: number }> {
 	console.log('applying patch');
 	console.log(patch.description ?? '(patch has no description)');
 
 	if (patch.subroutine) {
-		return replaceWithSubroutine(promData, patch);
+		return replaceWithSubroutine(promData, subroutineInsertEnd, patch);
 	} else {
-		return replace(promData, patch);
+		return {
+			patchedPromData: await replace(promData, patch),
+			subroutineInsertEnd,
+		};
 	}
 }
 

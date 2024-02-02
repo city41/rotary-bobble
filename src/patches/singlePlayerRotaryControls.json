@@ -1,0 +1,102 @@
+[
+	{
+		"patchDescription": "Trying some stuff with 108212"
+	},
+	{
+		"description": "Force 2ec94 (the routine just after the giant input routine) to go into our own subroutine, which sets delta (212) based on the rotary input",
+		"address": "2ec94",
+		"subroutine": true,
+		"patchAsm": [
+			";;;;; recreate what this routine originally did ;;;;;",
+			"move.b $83(A4), D0",
+			"andi.w #$10, D0",
+			"lsr.w #4, D0",
+			"move.w D0, $12(A4)",
+			";;;;;; end recreation ;;;;;",
+
+			"clr.w d0",
+			"clr.w d1",
+			"clr.w d2",
+
+			"move.b $10fd96, d0 ; load BIOS_P1CURRENT",
+			"move.b d0, d1 ; copy input into d1",
+			"move.b d0, d2 ; copy input into d2",
+
+			";;;; get rid of D, place BC in the right spot",
+			"andi.b #$7f, d0 ; turn the D bit off, it is for sign and we are only calc'ing a positive angle right now",
+			"lsr.b #5, d0 ; shift it down by 5 to get BC all by itself",
+			"lsl.b #4, d0 ; then shift BC back up into the higher nibble, to make room for RLDU",
+
+			"andi.b #$f, d1 ; take the copy of input in d1, and throw away everything but RLDU",
+			"add.b d0, d1 ; d1 is now CBRLDU, which is the positive angle we want, up to 63",
+
+			"cmpi.b #60, D1 ; compare D1 to 60",
+			"ble.s skipUpperClamp ; is it less than 61? no need to apply upper clamp",
+			"move.b #60, D1 ; it is too big, clamp it down to 60",
+			"skipUpperClamp:",
+
+			"; at this point D1 is (0,60), ie positive angles, and d2 is the original input",
+			"; if D was set, that means we want to negate the angle to (-60,0)",
+			"btst #7, D2 ; see if D was set",
+			"beq skipNegation; not set, no need to negate",
+			"muls.w #-1,d1 ; negation asked for, multiply angle by -1",
+			"skipNegation:",
+
+			";;;; at this point, d1.b is the current rotary angle",
+			"move.w d1, d2 ; save d1 into d2",
+			"move.w $108c24, d0 ; load the previous angle into d0",
+			"sub.w d0, d1 ; get the delta and stick it into d1",
+
+			"move.w d1, $108212 ; now finally set the delta into where the game expects it",
+			"move.w d2, $108c24 ; save the current angle so we can do a delta on the next frame",
+
+			";;;;; push input based on delta into our temp address so our fake input routine can inject it",
+			"cmpi.b #0, d1",
+
+			"beg.s setMovementToZero",
+
+			"ble.s skipRightMovement",
+			"move.b #$4, $108c28 ; our delta was positive, so tell the dino to move right",
+			"bra done",
+			"skipRightMovement:",
+			"move.b #$8, $108c28 ; our delta was negativbe, so tell the dino to move left",
+			"bra done",
+			"setMovementToZero:",
+			"move.b #$0, $108c28 ; our delta was zero, tell the dino to chill",
+
+			"done:",
+			"rts"
+		]
+	},
+	{
+		"description": "Ensure the 2ec94 routine to ignore the garbage we left behind",
+		"address": "2ec9a",
+		"patchAsm": ["rts", "nop", "nop", "nop"]
+	},
+	{
+		"description": "Have it read the fake input and real input, and OR them together",
+		"address": "1016",
+		"subroutine": true,
+		"patchAsm": [
+			";;; this is an unusual subroutine in that it leaves a value in D0 that the main game",
+			";;; code will use. Normally the Dx registers are free game in any subroutine and the game",
+			";;; wont make assumptions about them. But we are forcing the game to jump here to do this",
+			";;; so it's not really a true subroutine",
+
+			"move.b $10fd97, D0 ; load the real changed input at BIOS_P1CHANGE",
+
+			"andi.b #$10,d0 ; wipe out anything that isnt the A button",
+
+			"move.b $108c28, D1 ; load our fake input into D1",
+
+			"or.b D1, D0; combine the fake left/right with real A",
+
+			"rts"
+		]
+	},
+	{
+		"description": "Remove the throttle check in 2f602 routine, to allow rotary angles to be set instantly",
+		"address": "2f60c",
+		"patchAsm": ["nop"]
+	}
+]

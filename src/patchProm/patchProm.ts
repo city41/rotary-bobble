@@ -6,6 +6,10 @@ import { Patch, PatchDescription, PatchJSON } from './types';
 import { doPatch } from './doPatch';
 import { asmTmpDir, PROM_FILE_NAME, romTmpDir, tmpDir } from './dirs';
 
+// Place subroutines starting at the very end of the prom and working
+// backwards from there
+const SUBROUTINE_STARTING_INSERT_END = 0x80000;
+
 function usage() {
 	console.error('usage: ts-node patchProm <patch-json>');
 	process.exit(1);
@@ -77,37 +81,6 @@ function isPatchJSON(obj: unknown): obj is PatchJSON {
 	});
 }
 
-async function dumpProms(
-	unpatchedProm: number[],
-	patchedProm: number[],
-	dir: string
-): Promise<void> {
-	const unpatchedPath = path.resolve(dir, 'unpatched.p1.bin');
-	const patchedPath = path.resolve(dir, 'patched.p1.bin');
-
-	await mkdirp(path.resolve(dir));
-	await fsp.writeFile(unpatchedPath, new Uint8Array(unpatchedProm));
-	await fsp.writeFile(patchedPath, new Uint8Array(patchedProm));
-
-	try {
-		execSync(
-			`./disasm/dis68k < ${unpatchedPath} > ${path.resolve(
-				dir,
-				'unpatched.p1.txt'
-			)}`
-		);
-	} catch {}
-
-	try {
-		execSync(
-			`./disasm/dis68k < ${patchedPath} > ${path.resolve(
-				dir,
-				'patched.p1.txt'
-			)}`
-		);
-	} catch {}
-}
-
 async function writeZipWithNewProm(
 	promData: number[],
 	outputPath: string
@@ -146,6 +119,8 @@ async function main(patchJsonPaths: string[]) {
 
 	let patchedPromData = [...promData];
 
+	let subroutineInsertEnd = SUBROUTINE_STARTING_INSERT_END;
+
 	for (const patchJsonPath of patchJsonPaths) {
 		console.log('Starting patch', patchJsonPath);
 
@@ -163,12 +138,18 @@ async function main(patchJsonPaths: string[]) {
 		console.log(patchJson.shift().patchDescription);
 
 		for (const patch of patchJson) {
-			patchedPromData = await doPatch(patchedPromData, patch);
+			if (patch.skip) {
+				console.log('SKIPPING!', patch.description);
+				continue;
+			}
+
+			const result = await doPatch(patchedPromData, subroutineInsertEnd, patch);
+			patchedPromData = result.patchedPromData;
+			subroutineInsertEnd = result.subroutineInsertEnd;
+
 			console.log('\n\n');
 		}
 	}
-
-	await dumpProms(promData, patchedPromData, './proms');
 
 	const flippedBackPatch = flipBytes(patchedPromData);
 
