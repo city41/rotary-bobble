@@ -59,7 +59,7 @@ only tested on x64 Ubuntu 22. You will need a recent version of Node, I am using
 - copy an untouched `pbobblen.zip`, that is intended for MAME, into the root directory of the repo
   - all zips are in gitignore, so the rom won't end up in the repo
 - change the path in `src/patchProm/patchProm.ts` to your MAME rom directory, defaults to `/home/matt/mame/roms/pbobblen.zip`
-- run `ts-node src/patchProm/patchProm.ts src/patches/replaceAngleSettingRoutine_regp1cnt_all7bits.json`
+- run `ts-node src/patchProm/patchProm.ts src/patches/singlePlayerRotaryControls.json`
 
 Once patched, it will run in MAME if you start it on the command line. You can also run `yarn to-neosd` to create a .neo file. This requires [neosdconv](https://github.com/city41/neosdconv). I would prefer to use TerraOnion's NeoBuilder, but I've not gotten it to work properly. You will need to edit `scripts/toneosd.sh` and change my hardcoded paths.
 
