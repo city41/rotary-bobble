@@ -1,6 +1,6 @@
 [
 	{
-		"patchDescription": "Trying some stuff with 108212"
+		"patchDescription": "Have single player gameplay use rotary controls"
 	},
 	{
 		"description": "Force 2ec94 (the routine just after the giant input routine) to go into our own subroutine, which sets delta (212) based on the rotary input",
@@ -69,7 +69,7 @@
 		]
 	},
 	{
-		"description": "Ensure the 2ec94 routine to ignore the garbage we left behind",
+		"description": "Ensure the 2ec94 routine ignores the garbage we left behind",
 		"address": "2ec9a",
 		"patchAsm": ["rts", "nop", "nop", "nop"]
 	},
