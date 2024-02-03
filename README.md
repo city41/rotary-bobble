@@ -1,6 +1,6 @@
 # Rotary Bobble
 
-README Last updated: Jan 31, 2024
+README Last updated: Feb 2, 2024
 
 A ROM hack, and matching controller, to add rotary controls to the Neo Geo game Puzzle Bobble
 
@@ -10,15 +10,9 @@ https://github.com/city41/rotary-bobble/assets/141159/24a6326e-b90c-4391-a242-a1
 
 ### ROM Hack
 
-I have hacked in a routine that reads the rotary input, translates it into the shooter's angle, and sets that angle. The hack also does things like ensure the dinos and gears animate correctly, stuff like that. As I learn more about the game I'm realizing my hack could be a lot better, but this is a WIP.
+The patch `src/patches/singlePlayerRotaryControls.json` cleanly adds in rotary controls for single player play. I have figured out quite well how the game reads its input and my changes work well with the game and alter it minimally. I am pretty sure there are no bugs or any ill effects, rotary controls now just work. The Taito dev even made the "dino turns the crank" animation's speed dependent on how fast the shooter has moved. In normal Puzzle Bobble, you can only really move the shooter at one speed. So seeing the dino just speed up naturally to meet the new demands was awesome! Nice job, Taito!
 
-#### The lastest ROM patch
-
-As of this writing, the latest and greatest is
-
-```
-ts-node src/patchProm/patchProm.ts src/patches/replaceAngleSettingRoutine_regp1cnt_all7bits_wgears_animation.json src/patches/setRotationSubroutine.json
-```
+I am now working on high score entry.
 
 ### Controller
 
@@ -43,9 +37,9 @@ Oh lots...
   - Instructions on how to create a controller
 
 - ROM Hack
-  - Change the name of the game from "Puzzle Bobble" to "Rotary Bobble" by changing graphics in the C ROM
-  - Force the region to Europe or also change "Bust A Move" to ummmm "Spin a Move"?
+  - Add a tagline to the title screen to indicate this is the rotary version
   - Change the how to play to show rotary controls (big undertaking...)
+  - High score entry using rotary controls
   - Allow player two to use rotary controls
   - bug fixes
   - maybe a website that easily allows applying the hack?
