@@ -44,11 +44,11 @@
 
 			";;;; at this point, d1.b is the current rotary angle",
 			"move.w d1, d2 ; save d1 into d2",
-			"move.w $108c24, d0 ; load the previous angle into d0",
+			"move.w $108262, d0 ; load the previous angle into d0",
 			"sub.w d0, d1 ; get the delta and stick it into d1",
 
 			"move.w d1, $108212 ; now finally set the delta into where the game expects it",
-			"move.w d2, $108c24 ; save the current angle so we can do a delta on the next frame",
+			";;;; move.w d2, $108c24 ; save the current angle so we can do a delta on the next frame",
 
 			";;;;; push input based on delta into our temp address so our fake input routine can inject it",
 			"cmpi.b #0, d1",
