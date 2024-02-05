@@ -1,0 +1,69 @@
+[
+	{
+		"patchDescription": "Have high score entry use rotary controls"
+	},
+	{
+		"description": "Disable the timer countdown",
+		"address": "20cce",
+		"patchAsm": ["nop", "nop", "nop", "nop"]
+	},
+	{
+		"description": "Have the high score input routine not skip if no input is detected",
+		"address": "20cea",
+		"patchAsm": ["jmp $20d40"]
+	},
+	{
+		"skip": true,
+		"description": "just set g",
+		"address": "20d40",
+		"subroutine": true,
+		"patchAsm": ["move.b #6, $105a89", "rts"]
+	},
+	{
+		"description": "Have the high score input routine jump to our subroutine which sets pending letter based on rotary",
+		"address": "20d40",
+		"subroutine": true,
+		"patchAsm": [
+			"clr.l d1",
+			"move.b $10fd96, d0 ; load BIOS_P1CURRENT",
+			"move.b d0, d1 ; copy input into d1",
+			"move.b d0, d2 ; copy input into d2",
+
+			";;;; get rid of D, place BC in the right spot",
+			"andi.b #$7f, d0 ; turn the D bit off, it is for sign and we are only calc'ing a positive angle right now",
+			"lsr.b #5, d0 ; shift it down by 5 to get BC all by itself",
+			"lsl.b #4, d0 ; then shift BC back up into the higher nibble, to make room for RLDU",
+
+			"andi.b #$f, d1 ; take the copy of input in d1, and throw away everything but RLDU",
+			"add.b d0, d1 ; d1 is now CBRLDU, which is the positive angle we want, up to 63",
+
+			"cmpi.b #60, D1 ; compare D1 to 60",
+			"ble.s skipUpperClamp60 ; is it less than 61? no need to apply upper clamp",
+			"move.b #60, D1 ; it is too big, clamp it down to 60",
+			"skipUpperClamp60:",
+
+			";;;; at this point D1 is (0,60), ie positive angles, and d2 is the original input",
+			"btst #7, D2 ; see if D was set",
+			"beq skipNegation; not set, no need to negate",
+			"muls #-1,d1 ; negation asked for, multiply angle by -1",
+			"skipNegation:",
+
+			"addi.b #60, D1 ; map D1 from (-60,60) -> (0,120)",
+			"cmpi.b #119, D1 ; compare D1 to 119, as 120 is one too big because 120/3 = 40, one above the max",
+			"ble.s skipUpperClamp119 ; is it less than 120? no need to apply upper clamp",
+			"move.b #119, D1 ; it is too big, clamp it down to 119",
+			"skipUpperClamp119:",
+
+			"andi.l #$000000ff, d1 ; wipe out D1 above the byte, forcing the byte to become positive",
+			"divu.w #3, D1",
+
+			"move.b D1, $105a89",
+			"rts"
+		]
+	},
+	{
+		"description": "Once we return from our subroutine, the original routine needs to skip past its input handling",
+		"address": "20d46",
+		"patchAsm": ["jmp $20d6c"]
+	}
+]

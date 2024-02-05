@@ -36,7 +36,7 @@ function angle_to_input(ang, aIsPressed)
 	return (~regp1cnt & 0xff) << 8
 end
 
-angle = 61
+angle = -60
 
 jump_angles = { -40, 50, -10, 60, 0, 1, 2, 3, 4, -58, 60 }
 jump_index = 1
@@ -58,8 +58,8 @@ function next_angle_sweep()
 	if angle > 60 then
 		angle = 59
 		delta = -1
-	elseif angle < 1 then
-		angle = 1
+	elseif angle < -60 then
+		angle = -59
 		delta = 1
 	else
 		angle = angle + delta
@@ -74,7 +74,7 @@ function on_p1cnt_read(offset, data)
 	if offset == REG_P1CNT and SEND_ANGLES then
 		counter = counter + 1
 
-		if counter % 10 == 0 then
+		if counter % 30 == 0 then
 			next_angle_sweep()
 		end
 

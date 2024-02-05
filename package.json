@@ -7,7 +7,8 @@
 	"scripts": {
 		"restore": "cp pbobblen.zip /home/matt/mame/roms",
 		"type-check": "yarn tsc --noemit",
-		"to-neosd": "bash scripts/toneosd.sh"
+		"to-neosd": "bash scripts/toneosd.sh",
+		"mame": "mame -w -nofilter -nomouse aes pbobblen"
 	},
 	"dependencies": {
 		"@types/mkdirp": "^1.0.2",

@@ -1,6 +1,6 @@
 # Rotary Bobble
 
-README Last updated: Feb 2, 2024
+README Last updated: Feb 5, 2024
 
 A ROM hack, and matching controller, to add rotary controls to the Neo Geo game Puzzle Bobble
 
@@ -12,7 +12,7 @@ https://github.com/city41/rotary-bobble/assets/141159/24a6326e-b90c-4391-a242-a1
 
 The patch `src/patches/singlePlayerRotaryControls.json` cleanly adds in rotary controls for single player play. I have figured out quite well how the game reads its input and my changes work well with the game and alter it minimally. I am pretty sure there are no bugs or any ill effects, rotary controls now just work. The Taito dev even made the "dino turns the crank" animation's speed dependent on how fast the shooter has moved. In normal Puzzle Bobble, you can only really move the shooter at one speed. So seeing the dino just speed up naturally to meet the new demands was awesome! Nice job, Taito!
 
-I am now working on high score entry.
+`src/patches/highScoreRotaryControls.json` adds rotary controls to the high score entry screen. It also disables the countdown timer, so it just sits there at 20. I need to decide what to do there. Maybe just slow it down? You need more time (at least at first), to get used to entering your name with the dial. I might keep it disabled and hide the countdown, who is playing this in a real arcade setting these days?
 
 ### Controller
 
@@ -32,15 +32,21 @@ Oh lots...
 
 - Controller
 
-  - circuit can likely be improved, just winged it...
-  - Figure out a good power solution for the Pico
-  - Instructions on how to create a controller
+  - [x] build a working prototype
+  - [ ] circuit can likely be improved, just winged it...
+  - [ ] resolve the potentiometer noise issue, possibly with an LM4040?
+  - [ ] A switch to disable rotary input
+  - [ ] Figure out a good power solution for the Pico
+  - [ ] Instructions on how to create a controller
 
 - ROM Hack
-  - Add a tagline to the title screen to indicate this is the rotary version
-  - Change the how to play to show rotary controls (big undertaking...)
-  - High score entry using rotary controls
-  - Allow player two to use rotary controls
+  - [x] single player rotary controls during main gameplay
+  - [x] High score entry using rotary controls
+  - [ ] Allow player two to use rotary controls during a single player game (ie start a game with p2 instead of p1)
+  - [ ] Allow toggling rotary by holding select for a couple seconds
+  - [ ] Rotary controls for both players during a two player match
+  - [ ] Add a tagline to the title screen to indicate this is the rotary version
+  - [ ] Change the how to play to show rotary controls (big undertaking...)
   - bug fixes
   - maybe a website that easily allows applying the hack?
 
