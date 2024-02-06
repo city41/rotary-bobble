@@ -2,7 +2,14 @@ import path from 'node:path';
 import fsp from 'node:fs/promises';
 import mkdirp from 'mkdirp';
 import { execSync } from 'node:child_process';
-import { Patch, PatchDescription, PatchJSON } from './types';
+import {
+	AddressPatch,
+	Patch,
+	PatchDescription,
+	PatchJSON,
+	PatternPatch,
+	StringPatch,
+} from './types';
 import { doPatch } from './doPatch';
 import { asmTmpDir, PROM_FILE_NAME, romTmpDir, tmpDir } from './dirs';
 
@@ -45,6 +52,48 @@ function isPatchDescription(obj: unknown): obj is PatchDescription {
 	return typeof p.patchDescription === 'string';
 }
 
+function isStringPatch(obj: unknown): obj is StringPatch {
+	if (!obj) {
+		return false;
+	}
+
+	if (typeof obj !== 'object') {
+		return false;
+	}
+
+	const p = obj as StringPatch;
+
+	return p.string === true && typeof p.value === 'string';
+}
+
+function isPatternPatch(obj: unknown): obj is PatternPatch {
+	if (!obj) {
+		return false;
+	}
+
+	if (typeof obj !== 'object') {
+		return false;
+	}
+
+	const p = obj as PatternPatch;
+
+	return typeof p.pattern === 'string' && Array.isArray(p.patchAsm);
+}
+
+function isAddressPatch(obj: unknown): obj is PatternPatch {
+	if (!obj) {
+		return false;
+	}
+
+	if (typeof obj !== 'object') {
+		return false;
+	}
+
+	const p = obj as AddressPatch;
+
+	return typeof p.address === 'string' && Array.isArray(p.patchAsm);
+}
+
 function isPatch(obj: unknown): obj is Patch {
 	if (!obj) {
 		return false;
@@ -56,7 +105,7 @@ function isPatch(obj: unknown): obj is Patch {
 
 	const p = obj as Patch;
 
-	return Array.isArray(p.patchAsm);
+	return isStringPatch(p) || isPatternPatch(p) || isAddressPatch(p);
 }
 
 function isPatchJSON(obj: unknown): obj is PatchJSON {
@@ -132,6 +181,7 @@ async function main(patchJsonPaths: string[]) {
 		}
 
 		if (!isPatchJSON(patchJson)) {
+			console.error('The JSON at', patchJsonPath, ', is not a valid patch');
 			usage();
 		}
 
@@ -171,3 +221,5 @@ const finalPatchJsonPaths = patchJsonInputPaths.map((pjip) =>
 );
 
 main(finalPatchJsonPaths).catch((e) => console.error);
+
+export { isStringPatch };

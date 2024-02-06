@@ -2,8 +2,9 @@ import path from 'node:path';
 import fsp from 'node:fs/promises';
 import mkdirp from 'mkdirp';
 import { execSync } from 'node:child_process';
-import { Patch } from './types';
+import { AddressPatch, Patch, PatternPatch } from './types';
 import { asmTmpDir } from './dirs';
+import { isStringPatch } from './patchProm';
 
 function hexDump(bytes: number[]): string {
 	return bytes.map((b) => b.toString(16)).join(' ');
@@ -108,10 +109,51 @@ function formJsrAsm(numBytesToReplace: number, jsrAddress: number): string[] {
 	return asmNops.concat(`jsr $${jsrAddress.toString(16)}`);
 }
 
+function stringToassembly(str: string): string[] {
+	return str
+		.split('')
+		.map((c) => {
+			const asciiVal = c.charCodeAt(0);
+
+			return `dc.b $${asciiVal.toString(16)}`;
+		})
+		.concat('dc.b $0');
+}
+
+async function addStringToProm(
+	data: number[],
+	subroutineInsertEnd: number,
+	str: string
+): Promise<{ patchedPromData: number[]; subroutineInsertEnd: number }> {
+	const subroutineBytes = await assemble(stringToassembly(str));
+	console.log(
+		'addStringToProm: subroutinebytes for',
+		str,
+		hexDump(subroutineBytes)
+	);
+
+	const subroutineStartAddress = subroutineInsertEnd - subroutineBytes.length;
+
+	console.log(
+		`Adding str (${str}) at address $${subroutineStartAddress.toString(16)}`
+	);
+
+	data.splice(
+		subroutineStartAddress,
+		subroutineBytes.length,
+		...subroutineBytes
+	);
+
+	return {
+		patchedPromData: data,
+		subroutineInsertEnd: subroutineStartAddress,
+	};
+}
+
 async function replaceWithSubroutine(
 	data: number[],
 	subroutineInsertEnd: number,
-	patch: Patch
+	patch: AddressPatch | PatternPatch
 ): Promise<{ patchedPromData: number[]; subroutineInsertEnd: number }> {
 	const subroutineBytes = await assemble(patch.patchAsm);
 	console.log(
@@ -150,7 +192,10 @@ async function replaceWithSubroutine(
 	};
 }
 
-async function replace(data: number[], patch: Patch): Promise<number[]> {
+async function replace(
+	data: number[],
+	patch: AddressPatch | PatternPatch
+): Promise<number[]> {
 	if ('address' in patch) {
 		return replaceAt(data, patch.address, patch.patchAsm);
 	} else {
@@ -170,7 +215,9 @@ async function doPatch(
 	console.log('applying patch');
 	console.log(patch.description ?? '(patch has no description)');
 
-	if (patch.subroutine) {
+	if (isStringPatch(patch)) {
+		return addStringToProm(promData, subroutineInsertEnd, patch.value);
+	} else if (patch.subroutine) {
 		return replaceWithSubroutine(promData, subroutineInsertEnd, patch);
 	} else {
 		return {

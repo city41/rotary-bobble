@@ -1,0 +1,66 @@
+[
+	{
+		"patchDescription": "Print something to the fix layer"
+	},
+	{
+		"string": true,
+		"value": "rotary v0.0.1"
+	},
+	{
+		"address": "f8e",
+		"subroutine": true,
+		"patchAsm": [
+			"jsr $1da6 ; jump to the original routine we just clobbered the call of",
+
+			"move.w $108cd4, D6 ; load our counter word",
+			"cmpi.w #300, d6 ; has it gotten to 300?",
+			"bge.w routineExit",
+
+			";;;; game needs A7, so we need to save it",
+			"move.l A7, D7",
+			"move.l D7, $108cca",
+
+			"move.w #$7322, $3c0000 ; set vramaddr to spot in the middle of the fix layer",
+			"move.w #32, $3c0004 ; set vrammod so that when writing to fix we write horizontally",
+
+			"lea $7fff2, A7 ; load the start of the version string address",
+			"string1Loop:",
+			"clr.w d7",
+			"move.b (A7),d7 ; load the current byte into d7, increment A7 for next byte",
+			"beq loop1Done ; is it a null byte? done with the string",
+			"adda.l #1, A7",
+			"addi.w #768, d7 ; character tiles in the srom start at 768 and follow ascii from there",
+			"move.w d7, $3c0002 ; load the current char into the fix layer",
+			"bra string1Loop",
+			"loop1Done:",
+			";;;; game needs A7, so restore it",
+			"move.l $108cca, D7",
+			"movea.l D7, A7",
+
+			"increment:",
+			"addi.w #1, d6 ; increment our counter",
+			"cmpi.w #299, d6 ; did it just now hit 300?",
+			"ble.s skipClearFixLayer",
+
+			";;; if so, clear our string from the fix layer",
+			"lea $7fff2, A7 ; load the start of the version string address",
+			"move.w #$7322, $3c0000 ; set vramaddr to spot in the middle of the fix layer",
+			"string2Loop:",
+			"move.b (A7),d7 ; load the current byte into d7, increment A7 for next byte",
+			"beq loop2Done ; is it a null byte? done with the string",
+			"adda.l #1, A7",
+			"move.w #$ff, $3c0002 ; clear the tile",
+			"bra string2Loop",
+			"loop2Done:",
+			";;;; game needs A7, so restore it",
+			"move.l $108cca, D7",
+			"movea.l D7, A7",
+
+			"skipClearFixLayer:",
+			"move.w d6, $108cd4 ; store it off in memory for next time",
+
+			"routineExit:",
+			"rts"
+		]
+	}
+]
