@@ -3,9 +3,9 @@
 		"patchDescription": "Have high score entry use rotary controls"
 	},
 	{
-		"description": "Disable the timer countdown",
-		"address": "20cce",
-		"patchAsm": ["nop", "nop", "nop", "nop"]
+		"description": "Make the timer countdown start at 99 instead of 20, to allow more time",
+		"address": "208ec",
+		"patchAsm": ["move.w #5940, $1c(a4)"]
 	},
 	{
 		"description": "Have the high score input routine not skip if no input is detected",

@@ -12,7 +12,7 @@ https://github.com/city41/rotary-bobble/assets/141159/24a6326e-b90c-4391-a242-a1
 
 The patch `src/patches/gameplayRotaryControls.json` cleanly adds in rotary controls for all game play.
 
-`src/patches/highScoreRotaryControls.json` adds rotary controls to the high score entry screen. It also disables the countdown timer, so it just sits there at 20. I need to decide what to do there. Maybe just slow it down? You need more time (at least at first), to get used to entering your name with the dial. I might keep it disabled and hide the countdown, who is playing this in a real arcade setting these days?
+`src/patches/highScoreRotaryControls.json` adds rotary controls to the high score entry screen. It also sets the countdown timer to 99 instead of 20. The more time is needed due to needing to get used to using rotary on this screen.
 
 ### Controller
 
