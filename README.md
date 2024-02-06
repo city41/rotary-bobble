@@ -42,9 +42,9 @@ Oh lots...
 - ROM Hack
   - [x] single player rotary controls during main gameplay
   - [x] High score entry using rotary controls
-  - [ ] Allow player two to use rotary controls during a single player game (ie start a game with p2 instead of p1)
-  - [ ] Allow toggling rotary by holding select for a couple seconds
+  - [x] Allow player two to use rotary controls during a single player game (ie start a game with p2 instead of p1)
   - [ ] Rotary controls for both players during a two player match
+  - [ ] Allow toggling rotary by holding select for a couple seconds
   - [ ] Add a tagline to the title screen to indicate this is the rotary version
   - [ ] Change the how to play to show rotary controls (big undertaking...)
   - bug fixes

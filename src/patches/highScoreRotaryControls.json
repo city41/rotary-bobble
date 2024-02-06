@@ -25,7 +25,13 @@
 		"subroutine": true,
 		"patchAsm": [
 			"clr.l d1",
+			"move.b $10fdb6, d0; load BIOS_PLAYER_MOD1 to see if p1 is playing",
+			"beq loadP2current ; zero? then p2 is playing",
 			"move.b $10fd96, d0 ; load BIOS_P1CURRENT",
+			"bra doneLoadCurrent",
+			"loadP2current:",
+			"move.b $10fd9c, d0 ; load BIOS_P2CURRENT",
+			"doneLoadCurrent:",
 			"move.b d0, d1 ; copy input into d1",
 			"move.b d0, d2 ; copy input into d2",
 
