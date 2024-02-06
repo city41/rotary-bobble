@@ -1,6 +1,6 @@
 [
 	{
-		"patchDescription": "Have single player gameplay use rotary controls, both p1 side and p2 side"
+		"patchDescription": "Have gameplay use rotary controls, both p1 side and p2 side, single and versus modes"
 	},
 	{
 		"description": "Force 2ec94 (the routine just after the giant input routine) to go into our own subroutine, which sets delta (108212 for p2 and 1082ae for p2) based on the rotary input",

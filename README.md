@@ -10,7 +10,7 @@ https://github.com/city41/rotary-bobble/assets/141159/24a6326e-b90c-4391-a242-a1
 
 ### ROM Hack
 
-The patch `src/patches/singlePlayerRotaryControls.json` cleanly adds in rotary controls for single player play. I have figured out quite well how the game reads its input and my changes work well with the game and alter it minimally. I am pretty sure there are no bugs or any ill effects, rotary controls now just work. The Taito dev even made the "dino turns the crank" animation's speed dependent on how fast the shooter has moved. In normal Puzzle Bobble, you can only really move the shooter at one speed. So seeing the dino just speed up naturally to meet the new demands was awesome! Nice job, Taito!
+The patch `src/patches/gameplayRotaryControls.json` cleanly adds in rotary controls for all game play.
 
 `src/patches/highScoreRotaryControls.json` adds rotary controls to the high score entry screen. It also disables the countdown timer, so it just sits there at 20. I need to decide what to do there. Maybe just slow it down? You need more time (at least at first), to get used to entering your name with the dial. I might keep it disabled and hide the countdown, who is playing this in a real arcade setting these days?
 
