@@ -13,13 +13,6 @@
 		"patchAsm": ["jmp $20d40"]
 	},
 	{
-		"skip": true,
-		"description": "just set g",
-		"address": "20d40",
-		"subroutine": true,
-		"patchAsm": ["move.b #6, $105a89", "rts"]
-	},
-	{
 		"description": "Have the high score input routine jump to our subroutine which sets pending letter based on rotary",
 		"address": "20d40",
 		"subroutine": true,
