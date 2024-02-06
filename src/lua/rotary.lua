@@ -9,6 +9,7 @@ SEND_ANGLES = false
 -- | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
 -- | D | C | B | A | R | L | D | U |
 REG_P1CNT = 0x300000
+REG_P2CNT = 0x340000
 
 function angle_to_input(ang, aIsPressed)
 	if ang < -60 then
@@ -28,12 +29,12 @@ function angle_to_input(ang, aIsPressed)
 	local a = aIsPressed and (1 << 4) or (0 << 4)
 	local rldu = absAng & 0xf
 
-	local regp1cnt = d | cb | a | rldu
+	local regpcnt = d | cb | a | rldu
 
 	-- on the neo, low means active for regp1cnt,
 	-- so negate all the bits
 	-- shifting up by 8 because 68k always deals in words
-	return (~regp1cnt & 0xff) << 8
+	return (~regpcnt & 0xff) << 8
 end
 
 angle = -60
@@ -70,13 +71,13 @@ end
 
 counter = 0
 
-function on_p1cnt_read(offset, data)
-	if offset == REG_P1CNT and SEND_ANGLES then
+function on_pcnt_read(offset, data)
+	if SEND_ANGLES then
 		counter = counter + 1
 
-		if counter % 30 == 0 then
-			next_angle_sweep()
-		end
+		-- if counter % 30 == 0 then
+		next_angle_sweep()
+		-- end
 
 		local aIsPressed = ((data >> 12) & 1) == 0
 
@@ -98,7 +99,13 @@ keyboard_events.register_key_event_callback("KEYCODE_Y", on_y)
 
 emu.register_frame(tick, "tick")
 
-p1cnt_handler = mem:install_read_tap(REG_P1CNT, REG_P1CNT + 1, "p1cnt", on_p1cnt_read)
+p2 = os.getenv("PCNT") == "p2"
+
+REG_TO_LISTEN_TO = p2 and REG_P2CNT or REG_P1CNT
+
+print("listening to", (p2 and "p2" or "p1"))
+
+pcnt_handler = mem:install_read_tap(REG_TO_LISTEN_TO, REG_TO_LISTEN_TO + 1, "pcnt", on_pcnt_read)
 
 function on_frame()
 	if SEND_ANGLES then
