@@ -21,7 +21,9 @@
 ## Toggling input related
 
 108e00:1 -- p1 toggle counter, if hold p1 start for x frames, input will toggle
+108e02:1 -- p1's toggle. 0 = rotary, 1 = joystick
 108f00:1 -- p2 toggle counter, if hold p2 start for x frames, input will toggle
+108f02:1 -- p2's toggle. 0 = rotary, 1 = joystick
 
 ## Fake inputs
 
@@ -36,3 +38,7 @@ When figuring out the rotary angle delta, we also write this fake input to these
 
 108c28:b -- p1's fake input
 108cc4:b -- p2's fake input
+
+## high score input related
+
+108fa0:1 -- the throttle value for when in joystick mode

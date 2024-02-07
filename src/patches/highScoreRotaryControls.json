@@ -21,10 +21,17 @@
 			"move.b $10fdb6, d0; load BIOS_PLAYER_MOD1 to see if p1 is playing",
 			"beq loadP2current ; zero? then p2 is playing",
 			"move.b $10fd96, d0 ; load BIOS_P1CURRENT",
+			"move.b $108e02, d2 ; load the p1 input type toggle. 0 = rotary, 1 = joystick",
 			"bra doneLoadCurrent",
 			"loadP2current:",
 			"move.b $10fd9c, d0 ; load BIOS_P2CURRENT",
+			"move.b $108f02, d2 ; load the p2 input type toggle. 0 = rotary, 1 = joystick",
 			"doneLoadCurrent:",
+
+			"cmpi.b #0, d2 ; is the player currently using rotary?",
+			"bne handleJoystick",
+
+			";;;; rotary controls",
 			"move.b d0, d1 ; copy input into d1",
 			"move.b d0, d2 ; copy input into d2",
 
@@ -57,6 +64,38 @@
 			"divu.w #3, D1",
 
 			"move.b D1, $105a89",
+			"bra done",
+
+			"handleJoystick:",
+			"cmpi.b #0, d0 ; is there no input?",
+			"beq done ; then just bail",
+			"subi.b #1, $108fa0 ; decrement the throttle counter",
+			"bmi updateBasedOnJoystick ; did it go negative? let an input through",
+			"bra done ; not negative? ignore input to let the throttle work",
+			"updateBasedOnJoystick:",
+			"move.b #3, $108fa0 ; rearm the throttle",
+			"move.b $105a89, d1 ; load the current pending letter",
+			"btst #2, d0 ; is left pressed?",
+			"beq handleRight ; if not, jump to right",
+			"cmpi.b #0, d1 ; is the current pending letter at zero?",
+			"bne decrement ; if it is not, we can just decement it",
+			"move.b #39, d1 ; otherwise wrap it around to the max value",
+			"bra jsdone",
+			"handleRight:",
+			"cmpi.b #39, d1; is the current pending letter at the max?",
+			"bne increment ; if it is not, we can increment it",
+			"move.b #0, d1 ; otherwise, wrap it around to the min value",
+			"bra jsdone",
+			"decrement:",
+			"subi.b #1, d1",
+			"bra jsdone",
+			"increment:",
+			"addi.b #1, d1",
+
+			"jsdone:",
+			"move.b d1, $105a89",
+
+			"done:",
 			"rts"
 		]
 	},
