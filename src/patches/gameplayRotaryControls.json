@@ -195,28 +195,6 @@
 		]
 	},
 	{
-		"skip": true,
-		"description": "Have it read the fake p2 input and real p2 input, and OR them together",
-		"address": "1032",
-		"subroutine": true,
-		"patchAsm": [
-			";;; this is an unusual subroutine in that it leaves a value in D0 that the main game",
-			";;; code will use. Normally the Dx registers are free game in any subroutine and the game",
-			";;; wont make assumptions about them. But we are forcing the game to jump here to do this",
-			";;; so it's not really a true subroutine",
-
-			"move.b $10fd9d, D0 ; load the real changed input at BIOS_P2CHANGE",
-
-			"andi.b #$10,d0 ; wipe out anything that isnt the A button",
-
-			"move.b $108cc4, D1 ; load our fake p2 input into D1",
-
-			"or.b D1, D0; combine the fake left/right with real A",
-
-			"rts"
-		]
-	},
-	{
 		"description": "Remove the throttle check in 2f602 routine, to allow rotary angles to be set instantly",
 		"address": "2f60c",
 		"patchAsm": ["nop"]
