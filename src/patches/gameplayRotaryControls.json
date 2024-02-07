@@ -3,6 +3,16 @@
 		"patchDescription": "Have gameplay use rotary controls, both p1 side and p2 side, single and versus modes"
 	},
 	{
+		"description": "just toggled joystick off string",
+		"string": true,
+		"value": "rotary"
+	},
+	{
+		"description": "just toggled joystick on string",
+		"string": true,
+		"value": "joystk"
+	},
+	{
 		"description": "Force 2ec94 (the routine just after the giant input routine) to go into our own subroutine, which sets delta (108212 for p2 and 1082ae for p2) based on the rotary input",
 		"address": "2ec94",
 		"subroutine": true,
@@ -22,10 +32,15 @@
 			"cmpi.l #$108202, d0 ; is a4 pointed at p1's base address?",
 			"beq loadP1Input ; if so, jump down and load p1's input, else p2's",
 			"move.b $10fd9C, d0 ; load BIOS_P2CURRENT",
+			"move.b $108f02, d3 ; load the p2 input toggle value, 0 = rotary, 1 = joystick",
 			"bra doneLoadingInput",
 			"loadP1Input:",
 			"move.b $10fd96, d0 ; load BIOS_P1CURRENT",
+			"move.b $108e02, d3 ; load the p1 input toggle value, 0 = rotary, 1 = joystick",
 			"doneLoadingInput:",
+
+			"cmpi.b #1, d3 ; are we in joystick mode?",
+			"beq done ; if so, don't do anything",
 
 			"move.b d0, d1 ; copy input into d1",
 			"move.b d0, d2 ; copy input into d2",
@@ -66,7 +81,7 @@
 			"move.b #$4, $a26(A4) ; our delta was positive, so tell the dino to move right",
 			"bra done",
 			"skipRightMovement:",
-			"move.b #$8, $a26(A4); our delta was negativbe, so tell the dino to move left",
+			"move.b #$8, $a26(A4); our delta was negative, so tell the dino to move left",
 			"bra done",
 			"setMovementToZero:",
 			"move.b #$0, $a26(A4) ; our delta was zero, tell the dino to chill",
@@ -79,16 +94,6 @@
 		"description": "Ensure the 2ec94 routine ignores the garbage we left behind",
 		"address": "2ec9a",
 		"patchAsm": ["rts", "nop", "nop", "nop"]
-	},
-	{
-		"description": "just toggled joystick off string",
-		"string": true,
-		"value": "rotary"
-	},
-	{
-		"description": "just toggled joystick on string",
-		"string": true,
-		"value": "joystk"
 	},
 	{
 		"description": "Have it read the fake p1 input and real p1 input, and OR them together, also handle start holding to toggle controls",
@@ -118,10 +123,10 @@
 			"move.w #$7038, $108dda ; set the fix layer write location",
 			"cmpi.b #0, d2 ; see what string we need to load based on the toggle ",
 			"beq loadJoyOffString",
-			"move.l #$7fe96, $108ddc ; set the string pointer to joy on",
+			"move.l #$7ff1e, $108ddc ; set the string pointer to joy on",
 			"bra movePastStringPointer",
 			"loadJoyOffString:",
-			"move.l #$7fe9d, $108ddc ; set the string pointer to joy off",
+			"move.l #$7ff25, $108ddc ; set the string pointer to joy off",
 			"movePastStringPointer:",
 			"move.w #100, $108de0 ; set the countdown to 100",
 			"clearToggleCounter:",
@@ -131,14 +136,17 @@
 			";;; END: keep track of holding start for toggling",
 			";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;",
 
-			"move.b $10fd97, D0 ; load the real changed input at BIOS_P1CHANGE",
+			"move.b $10fd96, D0 ; load the real changed input at BIOS_P1CURRENT",
+
+			"move.b $108e02, d3 ; load the p1 input toggle value, 0 = rotary, 1 = joystick",
+			"cmpi.b #1, d3 ; check to see if in joystick mode",
+			"beq done ; if so, don't fake anything",
 
 			"andi.b #$10,d0 ; wipe out anything that isnt the A button",
-
 			"move.b $108c28, D1 ; load our fake p1 input into D1",
-
 			"or.b D1, D0; combine the fake left/right with real A",
 
+			"done:",
 			"rts"
 		]
 	},
@@ -170,10 +178,10 @@
 			"move.w #$7438, $108eda ; set the fix layer write location",
 			"cmpi.b #0, d2 ; see what string we need to load based on the toggle ",
 			"beq loadJoyOffString",
-			"move.l #$7fe96, $108edc ; set the string pointer to joy on",
+			"move.l #$7ff1e, $108edc ; set the string pointer to joy on",
 			"bra movePastStringPointer",
 			"loadJoyOffString:",
-			"move.l #$7fe9d, $108edc ; set the string pointer to joy off",
+			"move.l #$7ff25, $108edc ; set the string pointer to joy off",
 			"movePastStringPointer:",
 			"move.w #100, $108ee0 ; set the countdown to 100",
 			"clearToggleCounter:",
@@ -183,20 +191,18 @@
 			";;; END: keep track of holding start for toggling",
 			";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;",
 
-			"move.b $10fd9d, D0 ; load the real changed input at BIOS_P2CHANGE",
+			"move.b $10fd9c, D0 ; load the real changed input at BIOS_P2CURRENT",
+
+			"move.b $108f02, d3 ; load the p2 input toggle value, 0 = rotary, 1 = joystick",
+			"cmpi.b #1, d3 ; check to see if in joystick mode",
+			"beq done ; if so, don't fake anything",
 
 			"andi.b #$10,d0 ; wipe out anything that isnt the A button",
-
 			"move.b $108cc4, D1 ; load our fake p2 input into D1",
-
 			"or.b D1, D0; combine the fake left/right with real A",
 
+			"done:",
 			"rts"
 		]
-	},
-	{
-		"description": "Remove the throttle check in 2f602 routine, to allow rotary angles to be set instantly",
-		"address": "2f60c",
-		"patchAsm": ["nop"]
 	}
 ]

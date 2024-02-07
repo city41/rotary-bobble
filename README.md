@@ -57,7 +57,7 @@ Oh lots...
   - [x] Allow player two to use rotary controls during a single player game (ie start a game with p2 instead of p1)
   - [x] Rotary controls for both players during a two player match (versus)
   - [x] Add a tagline to the title screen to indicate this is the rotary version
-  - [ ] Allow toggling rotary by holding select for a couple seconds
+  - [x] Allow toggling rotary by holding select for a couple seconds
   - [ ] Change the how to play to show rotary controls (big undertaking...)
   - maybe a website that easily allows applying the hack?
 
