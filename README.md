@@ -1,6 +1,6 @@
 # Rotary Bobble
 
-README Last updated: Feb 5, 2024
+README Last updated: Feb 7, 2024
 
 A ROM hack, and matching controller, to add rotary controls to the Neo Geo game Puzzle Bobble
 
@@ -10,7 +10,19 @@ https://github.com/city41/rotary-bobble/assets/141159/24a6326e-b90c-4391-a242-a1
 
 ### ROM Hack
 
-The patch `src/patches/gameplayRotaryControls.json` cleanly adds in rotary controls for all game play.
+Currently the full and best patch is
+
+```
+ts-node src/patchProm/patchProm.ts src/patches/fixLayerPrinting.json \
+src/patches/gameplayRotaryControls.json  \
+src/patches/highScoreRotaryControls.json
+```
+
+The must be applied in that order, as the patches have some absolute addresses in them that depend on the patch order to be correct.
+
+`src/patches/fixLayerPrinting.json` enables printing some strings to the screen. First it prints the version of the hack at startup. Then prints either "rotary" or "joystk" to the screen on p1 or p2 side whenever a player toggles the input type. Hold start for 2 seconds to toggle.
+
+`src/patches/gameplayRotaryControls.json` cleanly adds in rotary controls for all game play.
 
 `src/patches/highScoreRotaryControls.json` adds rotary controls to the high score entry screen. It also sets the countdown timer to 99 instead of 20. The more time is needed due to needing to get used to using rotary on this screen.
 
@@ -44,10 +56,9 @@ Oh lots...
   - [x] High score entry using rotary controls
   - [x] Allow player two to use rotary controls during a single player game (ie start a game with p2 instead of p1)
   - [x] Rotary controls for both players during a two player match (versus)
+  - [x] Add a tagline to the title screen to indicate this is the rotary version
   - [ ] Allow toggling rotary by holding select for a couple seconds
-  - [ ] Add a tagline to the title screen to indicate this is the rotary version
   - [ ] Change the how to play to show rotary controls (big undertaking...)
-  - bug fixes
   - maybe a website that easily allows applying the hack?
 
 ## How to hack on this
