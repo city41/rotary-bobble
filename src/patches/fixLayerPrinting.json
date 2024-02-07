@@ -1,0 +1,96 @@
+[
+	{
+		"patchDescription": "Fix layer printing"
+	},
+	{
+		"description": "rotary version string",
+		"string": true,
+		"value": "rotary v0.0.1"
+	},
+	{
+		"description": "general string to fix layer routine",
+		"subroutine": true,
+		"patchAsm": [
+			";;; this routine is called with A7 set to a base address with the following data",
+			";;; [w:fix layer location][l: string pointer][w:countdown]",
+
+			"move.w (A6), d7 ; load string's fix layer write location into d7",
+			"movea.l $2(a6), a5 ; get this string's start address in ROM",
+			"move.w $6(a6), d6 ; get the countdown value",
+
+			"cmpi.w #0, d6",
+			"beq exit",
+
+			"move.w #32, $3c0004 ; set vrammod so that when writing to fix we write horizontally",
+			"move.w d7, $3c0000 ; set this string's fix layer write location",
+
+			"setAChar:",
+			"clr.w d7",
+			"move.b (a5), d7 ; grab a byte of the string into d7",
+			"beq stringDone ; hit the null byte, done",
+			"adda.l #1, a5 ; increment to next byte",
+			"cmpi.w #1, d6",
+			"beq useEmptyTile",
+			"addi.w #768, d7 ; offset from ascii to fix tile index",
+			"bra setTile",
+			"useEmptyTile:",
+			"move.w #$ff, d7",
+			"setTile:",
+			"move.w d7, $3c0002 ; load the tile into the fix layer",
+			"bra setAChar",
+			"stringDone:",
+			"subi.w #1, d6 ; decrement the counter",
+			"move.w d6, $6(a6) ; stick the counter back in memory",
+
+			"exit:",
+			"rts"
+		]
+	},
+	{
+		"description": "string manager routine",
+		"address": "f8e",
+		"subroutine": true,
+		"patchAsm": [
+			"jsr $1da6 ; jump to the original routine we just clobbered the call of",
+
+			";;;; game needs A6, so we need to save it",
+			"move.l A6, D7",
+			"move.l D7, $108dce",
+			";;;; game needs A5, so we need to save it",
+			"move.l A5, D7",
+			"move.l D7, $108dca",
+
+			"lea $108dd2, A6 ; load the version string base address",
+			"jsr $7ff9c; jump to the general string routine",
+
+			";;;; game needs A6, so restore it",
+			"move.l $108dce, D7",
+			"movea.l D7, A6",
+			";;;; game needs A5, so restore it",
+			"move.l $108dca, D7",
+			"movea.l D7, A5",
+			"rts"
+		]
+	},
+	{
+		"description": "hook in the version string info early at game start",
+		"address": "69a",
+		"subroutine": true,
+		"patchAsm": [
+			";;; do what was just clobbered for the jts",
+			"move.b #1, $10fdaf ; set BIOS_USE_MODE to 'Title'",
+
+			";;; set up the version string values for the general string routine",
+			";;; [w:fix layer location][l: string pointer][w:countdown]",
+			"move.w #$7322, $108dd2 ; set up the version string's fix write location",
+			"move.l #$7fff2, $108dd4 ; set up the pointer to the version string",
+			"move.w #300, $108dd8 ; set its countdown",
+			"rts"
+		]
+	},
+	{
+		"description": "clean up the bytes left behind by the jsr",
+		"address": "6a0",
+		"patchAsm": ["nop"]
+	}
+]

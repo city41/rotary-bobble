@@ -15,3 +15,7 @@ wpset 0x3c0002,1,w,wpdata == 8a51
 # A0 is pointing to is 8a50
 # this was used to break when the dino rotation tile is being set
 bpset 2cee,d1 == 5b80 && w@a0 == 8a50
+
+
+# watch BIOS_USE_MODE change
+wp 10fdaf,1,w,pc < c00000, { printf "mode set to:%d at %x",wpdata,pc; g }

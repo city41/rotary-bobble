@@ -115,9 +115,9 @@ function stringToassembly(str: string): string[] {
 		.map((c) => {
 			const asciiVal = c.charCodeAt(0);
 
-			return `dc.b $${asciiVal.toString(16)}`;
+			return `dc.b $${asciiVal.toString(16)} ; ${c} in ascii`;
 		})
-		.concat('dc.b $0');
+		.concat('dc.b $0  ; null terminator');
 }
 
 async function addStringToProm(
@@ -166,13 +166,19 @@ async function replaceWithSubroutine(
 	let jsrAsm;
 	let jsrAddedData: number[];
 
-	if ('address' in patch) {
+	if ('address' in patch && typeof patch.address === 'string') {
 		jsrAsm = await formJsrAsm(6, subroutineStartAddress);
 		jsrAddedData = await replaceAt(data, patch.address, jsrAsm);
-	} else {
+	} else if ('pattern' in patch) {
 		const patternBytes = toBytes(patch.pattern);
 		jsrAsm = await formJsrAsm(patternBytes.length, subroutineStartAddress);
 		jsrAddedData = await replaceWithPattern(data, patternBytes, jsrAsm);
+	} else {
+		console.log(
+			'subroutine has no address for jsr specified, just inserting it into rom'
+		);
+		console.log('at', subroutineStartAddress.toString(16));
+		jsrAddedData = data;
 	}
 
 	console.log(
@@ -197,9 +203,14 @@ async function replace(
 	patch: AddressPatch | PatternPatch
 ): Promise<number[]> {
 	if ('address' in patch) {
+		if (typeof patch.address !== 'string') {
+			throw new Error('replace: a non subroutine patch requires an address');
+		}
 		return replaceAt(data, patch.address, patch.patchAsm);
-	} else {
+	} else if ('pattern' in patch) {
 		return replaceWithPattern(data, toBytes(patch.pattern), patch.patchAsm);
+	} else {
+		throw new Error(`replace, unexpected patch: ${JSON.stringify(patch)}`);
 	}
 }
 

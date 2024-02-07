@@ -14,7 +14,7 @@ export type PatternPatch = BasePatch & {
 };
 
 export type AddressPatch = BasePatch & {
-	address: string;
+	address?: string;
 	subroutine?: boolean;
 	patchAsm: string[];
 };

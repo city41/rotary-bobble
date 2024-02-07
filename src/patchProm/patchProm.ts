@@ -80,7 +80,7 @@ function isPatternPatch(obj: unknown): obj is PatternPatch {
 	return typeof p.pattern === 'string' && Array.isArray(p.patchAsm);
 }
 
-function isAddressPatch(obj: unknown): obj is PatternPatch {
+function isAddressPatch(obj: unknown): obj is AddressPatch {
 	if (!obj) {
 		return false;
 	}
@@ -91,7 +91,7 @@ function isAddressPatch(obj: unknown): obj is PatternPatch {
 
 	const p = obj as AddressPatch;
 
-	return typeof p.address === 'string' && Array.isArray(p.patchAsm);
+	return Array.isArray(p.patchAsm) && !isPatternPatch(obj);
 }
 
 function isPatch(obj: unknown): obj is Patch {
