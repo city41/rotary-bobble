@@ -63,6 +63,12 @@
 			"lea $108dd2, A6 ; load the version string base address",
 			"jsr $7ff9c; jump to the general string routine",
 
+			"lea $108dda, A6 ; load the p1 control toggle string",
+			"jsr $7ff9c; jump to the general string routine",
+
+			"lea $108eda, A6 ; load the p2 control toggle string",
+			"jsr $7ff9c; jump to the general string routine",
+
 			";;;; game needs A6, so restore it",
 			"move.l $108dce, D7",
 			"movea.l D7, A6",
