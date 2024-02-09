@@ -1,10 +1,15 @@
 from machine import Pin
 import utime
 
+
+# this requires using the entire pot range
+# which is unfortunate, but the trade off is
+# much more stable readings
+MIN_EXTENT = 0
+MAX_EXTENT = 127
+
 MIN_ANGLE = -60
 MAX_ANGLE = 60
-
-SLEEP_DUR_MS = 10
 
 BTN_D = 0 # grey
 BTN_C = 1 # orange
@@ -61,22 +66,40 @@ def setPin(i, bit):
 
     # pinResult[i] = str(bit)
     pins[i].value(bit)
+
+def median(lst, n):
+    s = sorted(lst)
+    return (s[n//2-1]/2.0+s[n//2]/2.0, s[n//2])[n % 2]
+
+def get_voltage():
+    voltages = []
     
-STEP_DOWN_FACTOR = 270
-# this gives us roughly a 120 degree sweep on the physical pot
-EXTENT = 16250 // STEP_DOWN_FACTOR
-MIN_EXTENT = EXTENT
-MAX_EXTENT = (65535 // STEP_DOWN_FACTOR) - EXTENT
+    for i in range(10):
+        voltages.append(potPin.read_u16())
+        utime.sleep_us(500)
+    
+    min_v = min(voltages)
+    max_v = max(voltages)
+    trimmed_voltages = [i for i in voltages if i > min_v and i < max_v]
+    
+    n = len(trimmed_voltages)
+    
+    if n == 0:
+        return int((min_v + max_v) // 1024)
+    
+    return int(median(trimmed_voltages, n) // 512)
+
+
 
 while True:
-    potRawValue = round(potPin.read_u16() / STEP_DOWN_FACTOR)
+    potRawValue = get_voltage()
     
     if potRawValue < MIN_EXTENT:
         potRawValue = MIN_EXTENT
         
     if potRawValue > MAX_EXTENT:
         potRawValue = MAX_EXTENT
-    
+        
     angle = int(round(mapValue(MIN_EXTENT, MAX_EXTENT, MIN_ANGLE, MAX_ANGLE, potRawValue)))
     angleBitplane = toBitplane(abs(angle))
 
@@ -92,8 +115,6 @@ while True:
         setPin(i, angleBitplane[i])
     led.off()
 
-    # print("raw", potRawValue, "angle", angle, "pins", "".join(pinResult))
-
-    utime.sleep_ms(SLEEP_DUR_MS)
+    #utime.sleep_ms(3)
 
 
