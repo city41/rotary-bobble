@@ -20,9 +20,9 @@
 
 ## Toggling input related
 
-108e00:1 -- p1 toggle counter, if hold p1 start for x frames, input will toggle
+108e00:2 -- p1 toggle counter, if hold p1 start for x frames, input will toggle
 108e02:1 -- p1's toggle. 0 = rotary, 1 = joystick
-108f00:1 -- p2 toggle counter, if hold p2 start for x frames, input will toggle
+108f00:2 -- p2 toggle counter, if hold p2 start for x frames, input will toggle
 108f02:1 -- p2's toggle. 0 = rotary, 1 = joystick
 
 ## Fake inputs
