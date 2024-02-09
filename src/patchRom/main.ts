@@ -22,7 +22,7 @@ import { insertIntoCrom } from './insertIntoCrom';
 const SUBROUTINE_STARTING_INSERT_END = 0x80000;
 
 function usage() {
-	console.error('usage: ts-node patchProm <patch-json>');
+	console.error('usage: ts-node src/patchRom/main.ts <patch-json>');
 	process.exit(1);
 }
 

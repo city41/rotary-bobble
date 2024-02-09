@@ -8,11 +8,11 @@ These are MAME Lua scripts. For more info, check out [ngDebugScripts repo](https
 
 These are the actual patches that change Puzzle Bobble's PROM. They are JSON files and should be pretty self explanatory.
 
-## patchProm
+## patchRom
 
-A TypeScript app that can take in the patch json files and do the actual patching of the p rom
+A TypeScript app that can take in the patch json files and do the actual patching of the p and c roms
 
-`ts-node src/patchProm/patchProm.ts <patch-1.json> <patch2-json> ...`
+`ts-node src/patchRom/main.ts <patch-1.json> <patch2-json> ...`
 
 ## pico
 
