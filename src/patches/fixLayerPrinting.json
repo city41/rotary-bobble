@@ -3,11 +3,13 @@
 		"patchDescription": "Fix layer printing"
 	},
 	{
+		"type": "prom",
 		"description": "rotary version string",
 		"string": true,
 		"value": "rotary v0.0.1"
 	},
 	{
+		"type": "prom",
 		"description": "general string to fix layer routine",
 		"subroutine": true,
 		"patchAsm": [
@@ -47,6 +49,7 @@
 		]
 	},
 	{
+		"type": "prom",
 		"description": "string manager routine",
 		"address": "f8e",
 		"subroutine": true,
@@ -79,6 +82,7 @@
 		]
 	},
 	{
+		"type": "prom",
 		"description": "hook in the version string info early at game start",
 		"address": "69a",
 		"subroutine": true,
@@ -95,6 +99,7 @@
 		]
 	},
 	{
+		"type": "prom",
 		"description": "clean up the bytes left behind by the jsr",
 		"address": "6a0",
 		"patchAsm": ["nop"]

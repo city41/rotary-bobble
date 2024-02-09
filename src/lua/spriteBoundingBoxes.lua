@@ -171,7 +171,7 @@ function visualize_boundingBoxes()
 				0
 			)
 
-			-- screen:draw_text(clamp(left, 0, 320), clamp(top, 0, 224), tostring(i), 0xffffffff, 0xff000000)
+			screen:draw_text(clamp(left, 0, 320), clamp(top, 0, 224), tostring(i), 0xffffffff, 0xff000000)
 		end
 	end
 end
@@ -181,16 +181,16 @@ function on_frame()
 end
 
 function on_pause()
-	for i = 0, 380 do
-		local h = getSpriteHeight(i, vram)
+	-- for i = 0, 380 do
+	-- 	local h = getSpriteHeight(i, vram)
 
-		if h > 0 then
-			local x = getSpriteX(i, vram)
-			local y = getSpriteY(i, vram)
+	-- 	if h > 0 then
+	-- 		local x = getSpriteX(i, vram)
+	-- 		local y = getSpriteY(i, vram)
 
-			print(string.format("%d, x: %d, y: %d, h: %d", i, x, y, h))
-		end
-	end
+	-- 		print(string.format("%d, x: %d, y: %d, h: %d", i, x, y, h))
+	-- 	end
+	-- end
 end
 
 emu.register_frame_done(on_frame, "frame")
@@ -239,7 +239,12 @@ function dump_sprite(si)
 end
 
 function on_y(e)
-	dump_sprite(366)
+	dump_sprite(189)
+	dump_sprite(190)
+	dump_sprite(191)
+	dump_sprite(307)
+	dump_sprite(308)
+	dump_sprite(309)
 end
 
 keyboard_events.register_key_event_callback("KEYCODE_Y", on_y)

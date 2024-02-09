@@ -3,16 +3,19 @@
 		"patchDescription": "Have high score entry use rotary controls"
 	},
 	{
+		"type": "prom",
 		"description": "Make the timer countdown start at 99 instead of 20, to allow more time",
 		"address": "208ec",
 		"patchAsm": ["move.w #5940, $1c(a4)"]
 	},
 	{
+		"type": "prom",
 		"description": "Have the high score input routine not skip if no input is detected",
 		"address": "20cea",
 		"patchAsm": ["jmp $20d40"]
 	},
 	{
+		"type": "prom",
 		"description": "Have the high score input routine jump to our subroutine which sets pending letter based on rotary",
 		"address": "20d40",
 		"subroutine": true,
@@ -100,6 +103,7 @@
 		]
 	},
 	{
+		"type": "prom",
 		"description": "Once we return from our subroutine, the original routine needs to skip past its input handling",
 		"address": "20d46",
 		"patchAsm": ["jmp $20d6c"]

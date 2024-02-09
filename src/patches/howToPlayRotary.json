@@ -1,0 +1,143 @@
+[
+	{
+		"patchDescription": "Tiles for the how to play rotary"
+	},
+	{
+		"type": "crom",
+		"description": "how to play - rotary left",
+		"imgFile": "howToPlayRotaryLeft.png",
+		"paletteFile": "howToPlayRotaryPalette.png",
+		"destStartingIndex": "9c00"
+	},
+	{
+		"type": "crom",
+		"description": "how to play - rotary center",
+		"imgFile": "howToPlayRotaryCenter.png",
+		"paletteFile": "howToPlayRotaryPalette.png",
+		"destStartingIndex": "9c09"
+	},
+	{
+		"type": "crom",
+		"description": "how to play - rotary right",
+		"imgFile": "howToPlayRotaryRight.png",
+		"paletteFile": "howToPlayRotaryPalette.png",
+		"destStartingIndex": "9c12"
+	},
+	{
+		"type": "prom",
+		"description": "the left rotary frame tiles written into prom",
+		"address": "adc4",
+		"patchAsm": [
+			"dc.w $9c00",
+			"dc.w $0000",
+			"dc.w $9c01",
+			"dc.w $0000",
+			"dc.w $9c02",
+			"dc.w $0000",
+			"dc.w $9c03",
+			"dc.w $0000",
+			"dc.w $9c04",
+			"dc.w $0000",
+			"dc.w $9c05",
+			"dc.w $0000",
+			"dc.w $9c06",
+			"dc.w $0000",
+			"dc.w $9c07",
+			"dc.w $0000",
+			"dc.w $9c08",
+			"dc.w $0000"
+		]
+	},
+	{
+		"type": "prom",
+		"description": "the center rotary frame tiles written into prom",
+		"address": "ad9c",
+		"patchAsm": [
+			"dc.w $9c09",
+			"dc.w $0000",
+			"dc.w $9c0a",
+			"dc.w $0000",
+			"dc.w $9c0b",
+			"dc.w $0000",
+			"dc.w $9c0c",
+			"dc.w $0000",
+			"dc.w $9c0d",
+			"dc.w $0000",
+			"dc.w $9c0e",
+			"dc.w $0000",
+			"dc.w $9c0f",
+			"dc.w $0000",
+			"dc.w $9c10",
+			"dc.w $0000",
+			"dc.w $9c11",
+			"dc.w $0000"
+		]
+	},
+	{
+		"type": "prom",
+		"description": "the right rotary frame tiles written into prom",
+		"address": "adec",
+		"patchAsm": [
+			"dc.w $9c12",
+			"dc.w $0000",
+			"dc.w $9c13",
+			"dc.w $0000",
+			"dc.w $9c14",
+			"dc.w $0000",
+			"dc.w $9c15",
+			"dc.w $0000",
+			"dc.w $9c16",
+			"dc.w $0000",
+			"dc.w $9c17",
+			"dc.w $0000",
+			"dc.w $9c18",
+			"dc.w $0000",
+			"dc.w $9c19",
+			"dc.w $0000",
+			"dc.w $9c1a",
+			"dc.w $0000"
+		]
+	},
+	{
+		"type": "crom",
+		"description": "how to play - instructions, joystick -> spinner",
+		"imgFile": "howToPlayInstructions.png",
+		"paletteFile": "howToPlayInstructionsPalette.png",
+		"destStartingIndex": "9c1b"
+	},
+	{
+		"type": "prom",
+		"description": "joystick -> spinner changes to tile indexes in prom, first row",
+		"address": "a564",
+		"patchAsm": [
+			"dc.w $9c1b",
+			"dc.w $0000",
+			"dc.w $9c1c",
+			"dc.w $0000",
+			"dc.w $9c1d",
+			"dc.w $0000",
+			"dc.w $9c1e",
+			"dc.w $0000",
+			"dc.w $9c1f",
+			"dc.w $0000",
+			"dc.w $9c20"
+		]
+	},
+	{
+		"type": "prom",
+		"description": "joystick -> spinner changes to tile indexes in prom, second row",
+		"address": "a584",
+		"patchAsm": [
+			"dc.w $9c21",
+			"dc.w $0000",
+			"dc.w $9c22",
+			"dc.w $0000",
+			"dc.w $9c23",
+			"dc.w $0000",
+			"dc.w $9c24",
+			"dc.w $0000",
+			"dc.w $9c25",
+			"dc.w $0000"
+		]
+	}
+]

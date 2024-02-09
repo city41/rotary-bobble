@@ -2,9 +2,9 @@ import path from 'node:path';
 import fsp from 'node:fs/promises';
 import mkdirp from 'mkdirp';
 import { execSync } from 'node:child_process';
-import { AddressPatch, Patch, PatternPatch } from './types';
+import { AddressPromPatch, Patch, PatternPromPatch } from './types';
 import { asmTmpDir } from './dirs';
-import { isStringPatch } from './patchProm';
+import { isCromPatch, isStringPatch } from './main';
 
 function hexDump(bytes: number[]): string {
 	return bytes.map((b) => b.toString(16)).join(' ');
@@ -153,7 +153,7 @@ async function addStringToProm(
 async function replaceWithSubroutine(
 	data: number[],
 	subroutineInsertEnd: number,
-	patch: AddressPatch | PatternPatch
+	patch: AddressPromPatch | PatternPromPatch
 ): Promise<{ patchedPromData: number[]; subroutineInsertEnd: number }> {
 	const subroutineBytes = await assemble(patch.patchAsm);
 	console.log(
@@ -200,7 +200,7 @@ async function replaceWithSubroutine(
 
 async function replace(
 	data: number[],
-	patch: AddressPatch | PatternPatch
+	patch: AddressPromPatch | PatternPromPatch
 ): Promise<number[]> {
 	if ('address' in patch) {
 		if (typeof patch.address !== 'string') {
@@ -218,11 +218,15 @@ function toBytes(b: string): number[] {
 	return b.split(' ').map((v) => parseInt(v, 16));
 }
 
-async function doPatch(
+async function doPromPatch(
 	promData: number[],
 	subroutineInsertEnd: number,
 	patch: Patch
 ): Promise<{ patchedPromData: number[]; subroutineInsertEnd: number }> {
+	if (isCromPatch(patch)) {
+		throw new Error('doPromPatch: given a crom patch');
+	}
+
 	console.log('applying patch');
 	console.log(patch.description ?? '(patch has no description)');
 
@@ -238,4 +242,4 @@ async function doPatch(
 	}
 }
 
-export { doPatch };
+export { doPromPatch };

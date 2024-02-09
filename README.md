@@ -20,11 +20,11 @@ src/patches/highScoreRotaryControls.json
 
 The must be applied in that order, as the patches have some absolute addresses in them that depend on the patch order to be correct.
 
-`src/patches/fixLayerPrinting.json` enables printing some strings to the screen. First it prints the version of the hack at startup. Then prints either "rotary" or "joystk" to the screen on p1 or p2 side whenever a player toggles the input type. Hold start for 2 seconds to toggle.
+`src/patches/prom/fixLayerPrinting.json` enables printing some strings to the screen. First it prints the version of the hack at startup. Then prints either "rotary" or "joystk" to the screen on p1 or p2 side whenever a player toggles the input type. Hold start for 2 seconds to toggle.
 
-`src/patches/gameplayRotaryControls.json` cleanly adds in rotary controls for all game play.
+`src/patches/prom/gameplayRotaryControls.json` cleanly adds in rotary controls for all game play.
 
-`src/patches/highScoreRotaryControls.json` adds rotary controls to the high score entry screen. It also sets the countdown timer to 99 instead of 20. The more time is needed due to needing to get used to using rotary on this screen.
+`src/patches/prom/highScoreRotaryControls.json` adds rotary controls to the high score entry screen. It also sets the countdown timer to 99 instead of 20. The more time is needed due to needing to get used to using rotary on this screen.
 
 ### Controller
 
@@ -76,7 +76,7 @@ only tested on x64 Ubuntu 22. You will need a recent version of Node, I am using
 - copy an untouched `pbobblen.zip`, that is intended for MAME, into the root directory of the repo
   - all zips are in gitignore, so the rom won't end up in the repo
 - change the path in `src/patchProm/patchProm.ts` to your MAME rom directory, defaults to `/home/matt/mame/roms/pbobblen.zip`
-- run `ts-node src/patchProm/patchProm.ts src/patches/singlePlayerRotaryControls.json`
+- run `ts-node src/patchProm/patchProm.ts src/patches/prom/gameplayRotaryControls.json`
 
 Once patched, it will run in MAME if you start it on the command line. You can also run `yarn to-neosd` to create a .neo file. This requires [neosdconv](https://github.com/city41/neosdconv). I would prefer to use TerraOnion's NeoBuilder, but I've not gotten it to work properly. You will need to edit `scripts/toneosd.sh` and change my hardcoded paths.
 

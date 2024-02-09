@@ -2,16 +2,20 @@ import path from 'node:path';
 import fsp from 'node:fs/promises';
 import mkdirp from 'mkdirp';
 import { execSync } from 'node:child_process';
+import { PROM_FILE_NAME, asmTmpDir, romTmpDir, tmpDir } from './dirs';
 import {
-	AddressPatch,
+	AddressPromPatch,
+	CromBuffer,
+	CromPatch,
 	Patch,
 	PatchDescription,
 	PatchJSON,
-	PatternPatch,
-	StringPatch,
+	PatternPromPatch,
+	StringPromPatch,
 } from './types';
-import { doPatch } from './doPatch';
-import { asmTmpDir, PROM_FILE_NAME, romTmpDir, tmpDir } from './dirs';
+import { doPromPatch } from './doPromPatch';
+import { createCromBytes } from './createCromBytes';
+import { insertIntoCrom } from './insertIntoCrom';
 
 // Place subroutines starting at the very end of the prom and working
 // backwards from there
@@ -22,6 +26,21 @@ function usage() {
 	process.exit(1);
 }
 
+async function getProm(zipPath: string): Promise<Buffer> {
+	execSync(`unzip -o ${zipPath} -d ${romTmpDir}`);
+
+	return fsp.readFile(path.resolve(romTmpDir, PROM_FILE_NAME));
+}
+
+async function getCrom(zipPath: string, cromFile: string): Promise<CromBuffer> {
+	execSync(`unzip -o ${zipPath} -d ${romTmpDir}`);
+
+	return {
+		fileName: cromFile,
+		data: Array.from(await fsp.readFile(path.resolve(romTmpDir, cromFile))),
+	};
+}
+
 function flipBytes(data: number[]): number[] {
 	for (let i = 0; i < data.length; i += 2) {
 		const byte = data[i];
@@ -30,12 +49,6 @@ function flipBytes(data: number[]): number[] {
 	}
 
 	return data;
-}
-
-async function getProm(zipPath: string): Promise<Buffer> {
-	execSync(`unzip -o ${zipPath} -d ${romTmpDir}`);
-
-	return fsp.readFile(path.resolve(romTmpDir, PROM_FILE_NAME));
 }
 
 function isPatchDescription(obj: unknown): obj is PatchDescription {
@@ -52,7 +65,7 @@ function isPatchDescription(obj: unknown): obj is PatchDescription {
 	return typeof p.patchDescription === 'string';
 }
 
-function isStringPatch(obj: unknown): obj is StringPatch {
+function isStringPatch(obj: unknown): obj is StringPromPatch {
 	if (!obj) {
 		return false;
 	}
@@ -61,12 +74,12 @@ function isStringPatch(obj: unknown): obj is StringPatch {
 		return false;
 	}
 
-	const p = obj as StringPatch;
+	const p = obj as StringPromPatch;
 
 	return p.string === true && typeof p.value === 'string';
 }
 
-function isPatternPatch(obj: unknown): obj is PatternPatch {
+function isPatternPatch(obj: unknown): obj is PatternPromPatch {
 	if (!obj) {
 		return false;
 	}
@@ -75,12 +88,12 @@ function isPatternPatch(obj: unknown): obj is PatternPatch {
 		return false;
 	}
 
-	const p = obj as PatternPatch;
+	const p = obj as PatternPromPatch;
 
 	return typeof p.pattern === 'string' && Array.isArray(p.patchAsm);
 }
 
-function isAddressPatch(obj: unknown): obj is AddressPatch {
+function isAddressPatch(obj: unknown): obj is AddressPromPatch {
 	if (!obj) {
 		return false;
 	}
@@ -89,9 +102,27 @@ function isAddressPatch(obj: unknown): obj is AddressPatch {
 		return false;
 	}
 
-	const p = obj as AddressPatch;
+	const p = obj as AddressPromPatch;
 
 	return Array.isArray(p.patchAsm) && !isPatternPatch(obj);
+}
+
+function isCromPatch(obj: unknown): obj is CromPatch {
+	if (!obj) {
+		return false;
+	}
+
+	if (typeof obj !== 'object') {
+		return false;
+	}
+
+	const p = obj as CromPatch;
+
+	return (
+		typeof p.destStartingIndex === 'string' &&
+		typeof p.imgFile === 'string' &&
+		typeof p.paletteFile === 'string'
+	);
 }
 
 function isPatch(obj: unknown): obj is Patch {
@@ -105,7 +136,9 @@ function isPatch(obj: unknown): obj is Patch {
 
 	const p = obj as Patch;
 
-	return isStringPatch(p) || isPatternPatch(p) || isAddressPatch(p);
+	return (
+		isStringPatch(p) || isPatternPatch(p) || isAddressPatch(p) || isCromPatch(p)
+	);
 }
 
 function isPatchJSON(obj: unknown): obj is PatchJSON {
@@ -130,14 +163,22 @@ function isPatchJSON(obj: unknown): obj is PatchJSON {
 	});
 }
 
-async function writeZipWithNewProm(
+async function writePatchedZip(
 	promData: number[],
+	cromBuffers: CromBuffer[],
 	outputPath: string
 ): Promise<void> {
 	await fsp.writeFile(
 		path.resolve(romTmpDir, PROM_FILE_NAME),
 		new Uint8Array(promData)
 	);
+
+	for (const cromBuffer of cromBuffers) {
+		await fsp.writeFile(
+			path.resolve(romTmpDir, cromBuffer.fileName),
+			new Uint8Array(cromBuffer.data)
+		);
+	}
 
 	const cmd = 'zip pbobblen.zip *';
 	console.log('about to execute', cmd);
@@ -164,13 +205,21 @@ async function main(patchJsonPaths: string[]) {
 	const flippedPromData = Array.from(flippedPromBuffer);
 	const promData = flipBytes(flippedPromData);
 
-	console.log('length before patch', promData.length);
-
 	let patchedPromData = [...promData];
+
+	let cromBuffers = [
+		await getCrom(path.resolve('./pbobblen.zip'), '068-c1.c1'),
+		await getCrom(path.resolve('./pbobblen.zip'), '068-c2.c2'),
+		await getCrom(path.resolve('./pbobblen.zip'), '068-c3.c3'),
+		await getCrom(path.resolve('./pbobblen.zip'), '068-c4.c4'),
+		await getCrom(path.resolve('./pbobblen.zip'), 'd96-02.c5'),
+		await getCrom(path.resolve('./pbobblen.zip'), 'd96-03.c6'),
+	];
 
 	let subroutineInsertEnd = SUBROUTINE_STARTING_INSERT_END;
 
 	for (const patchJsonPath of patchJsonPaths) {
+		const jsonDir = path.dirname(patchJsonPath);
 		console.log('Starting patch', patchJsonPath);
 
 		let patchJson;
@@ -181,7 +230,11 @@ async function main(patchJsonPaths: string[]) {
 		}
 
 		if (!isPatchJSON(patchJson)) {
-			console.error('The JSON at', patchJsonPath, ', is not a valid patch');
+			console.error(
+				'The JSON at',
+				patchJsonPath,
+				', is not a valid patch file'
+			);
 			usage();
 		}
 
@@ -193,9 +246,48 @@ async function main(patchJsonPaths: string[]) {
 				continue;
 			}
 
-			const result = await doPatch(patchedPromData, subroutineInsertEnd, patch);
-			patchedPromData = result.patchedPromData;
-			subroutineInsertEnd = result.subroutineInsertEnd;
+			if (patch.type === 'prom') {
+				const result = await doPromPatch(
+					patchedPromData,
+					subroutineInsertEnd,
+					patch
+				);
+				patchedPromData = result.patchedPromData;
+				subroutineInsertEnd = result.subroutineInsertEnd;
+			} else if (patch.type === 'crom') {
+				try {
+					console.log(patch.description);
+					console.log('creating crom bytes for', patch.imgFile);
+					const { oddCromBytes, evenCromBytes } = createCromBytes(
+						path.resolve(jsonDir, patch.imgFile),
+						path.resolve(jsonDir, patch.paletteFile)
+					);
+
+					const startingCromTileIndex = parseInt(patch.destStartingIndex, 16);
+					const tileIndexes: number[] = [];
+					const tileCount = oddCromBytes.length / 64;
+					for (let t = 0; t < tileCount; ++t) {
+						tileIndexes.push(startingCromTileIndex + t);
+					}
+
+					console.log(
+						'inserting crom data into croms at tile indexes:',
+						tileIndexes.map((ti) => ti.toString(16)).join(',')
+					);
+					cromBuffers = await insertIntoCrom(
+						oddCromBytes,
+						evenCromBytes,
+						parseInt(patch.destStartingIndex, 16),
+						cromBuffers
+					);
+
+					console.log('\n\n');
+				} catch (e) {
+					console.error(e);
+				}
+			} else {
+				throw new Error('unknown patch type: ' + patch.type);
+			}
 
 			console.log('\n\n');
 		}
@@ -203,11 +295,10 @@ async function main(patchJsonPaths: string[]) {
 
 	const flippedBackPatch = flipBytes(patchedPromData);
 
-	console.log('length after patch', flippedBackPatch.length);
 	const writePath = '/home/matt/mame/roms/pbobblen.zip';
-	await writeZipWithNewProm(flippedBackPatch, writePath);
+	await writePatchedZip(flippedBackPatch, cromBuffers, writePath);
 
-	console.log('written patched rom to', writePath);
+	console.log('wrote patched rom to', writePath);
 }
 
 const patchJsonInputPaths = process.argv.slice(2);
@@ -222,4 +313,4 @@ const finalPatchJsonPaths = patchJsonInputPaths.map((pjip) =>
 
 main(finalPatchJsonPaths).catch((e) => console.error);
 
-export { isStringPatch };
+export { isStringPatch, isCromPatch };

@@ -3,16 +3,19 @@
 		"patchDescription": "Have gameplay use rotary controls, both p1 side and p2 side, single and versus modes"
 	},
 	{
+		"type": "prom",
 		"description": "just toggled joystick off string",
 		"string": true,
 		"value": "rotary"
 	},
 	{
+		"type": "prom",
 		"description": "just toggled joystick on string",
 		"string": true,
 		"value": "joystk"
 	},
 	{
+		"type": "prom",
 		"description": "Force 2ec94 (the routine just after the giant input routine) to go into our own subroutine, which sets delta (108212 for p2 and 1082ae for p2) based on the rotary input",
 		"address": "2ec94",
 		"subroutine": true,
@@ -91,11 +94,13 @@
 		]
 	},
 	{
+		"type": "prom",
 		"description": "Ensure the 2ec94 routine ignores the garbage we left behind",
 		"address": "2ec9a",
 		"patchAsm": ["rts", "nop", "nop", "nop"]
 	},
 	{
+		"type": "prom",
 		"description": "Have it read the fake p1 input and real p1 input, and OR them together, also handle start holding to toggle controls",
 		"address": "1016",
 		"subroutine": true,
@@ -151,6 +156,7 @@
 		]
 	},
 	{
+		"type": "prom",
 		"description": "Have it read the fake p2 input and real p2 input, and OR them together, also handle start holding to toggle controls",
 		"address": "1032",
 		"subroutine": true,
