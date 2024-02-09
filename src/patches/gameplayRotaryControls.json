@@ -4,18 +4,6 @@
 	},
 	{
 		"type": "prom",
-		"description": "just toggled joystick off string",
-		"string": true,
-		"value": "rotary  "
-	},
-	{
-		"type": "prom",
-		"description": "just toggled joystick on string",
-		"string": true,
-		"value": "joystick"
-	},
-	{
-		"type": "prom",
 		"description": "Force 2ec94 (the routine just after the giant input routine) to go into our own subroutine, which sets delta (108212 for p2 and 1082ae for p2) based on the rotary input",
 		"address": "2ec94",
 		"subroutine": true,
@@ -128,10 +116,10 @@
 			"move.w #$7038, $108dda ; set the fix layer write location",
 			"cmpi.b #0, d2 ; see what string we need to load based on the toggle ",
 			"beq loadJoyOffString",
-			"move.l #$7ff1a, $108ddc ; set the string pointer to joy on",
+			"move.l #$7fd51, $108ddc ; set the string pointer to joy on",
 			"bra movePastStringPointer",
 			"loadJoyOffString:",
-			"move.l #$7ff23, $108ddc ; set the string pointer to joy off",
+			"move.l #$7fd63, $108ddc ; set the string pointer to p1 joy off",
 			"movePastStringPointer:",
 			"move.w #100, $108de0 ; set the countdown to 100",
 			"bra saveCounter ; purposely dont clear the counter. only clear via let go of start",
@@ -182,13 +170,13 @@
 			"sub.b d3, d2",
 			"move.b d2, $108f02 ; put it back in memory",
 			";;;; set up the notification string",
-			"move.w #$7438, $108eda ; set the fix layer write location",
+			"move.w #$73f8, $108eda ; set the fix layer write location",
 			"cmpi.b #0, d2 ; see what string we need to load based on the toggle ",
 			"beq loadJoyOffString",
-			"move.l #$7ff1a, $108edc ; set the string pointer to joy on",
+			"move.l #$7fd51, $108edc ; set the string pointer to joy on",
 			"bra movePastStringPointer",
 			"loadJoyOffString:",
-			"move.l #$7ff23, $108edc ; set the string pointer to joy off",
+			"move.l #$7fd5a, $108edc ; set the string pointer to p2 joy off",
 			"movePastStringPointer:",
 			"move.w #100, $108ee0 ; set the countdown to 100",
 			"bra saveCounter ; purposely dont clear the counter. only clear via let go of start",
@@ -212,5 +200,23 @@
 			"done:",
 			"rts"
 		]
+	},
+	{
+		"type": "prom",
+		"description": "p1: just toggled joystick off string",
+		"string": true,
+		"value": "rotary  "
+	},
+	{
+		"type": "prom",
+		"description": "p2: just toggled joystick off string",
+		"string": true,
+		"value": "  rotary"
+	},
+	{
+		"type": "prom",
+		"description": "just toggled joystick on string",
+		"string": true,
+		"value": "joystick"
 	}
 ]
