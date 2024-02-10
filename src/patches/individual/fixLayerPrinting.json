@@ -13,7 +13,7 @@
 		"description": "general string to fix layer routine",
 		"subroutine": true,
 		"patchAsm": [
-			";;; this routine is called with A7 set to a base address with the following data",
+			";;; this routine is called with A6 set to a base address with the following data",
 			";;; [w:fix layer location][l: string pointer][w:countdown]",
 
 			"move.w (A6), d7 ; load string's fix layer write location into d7",
