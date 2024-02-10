@@ -1,9 +1,0 @@
-[
-	{
-		"patchDescription": "Force 108284 to be F7"
-	},
-	{
-		"address": "2e986",
-		"patchAsm": ["move.w #$f700,$82(A4)"]
-	}
-]

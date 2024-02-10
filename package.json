@@ -5,7 +5,7 @@
 	"author": "Matt Greer <matt.e.greer@gmail.com>",
 	"license": "MIT",
 	"scripts": {
-		"restore": "cp pbobblen.zip /home/matt/mame/roms",
+		"restore": "cp pbobblen.zip $MAME_ROM_DIR",
 		"type-check": "yarn tsc --noemit",
 		"to-neosd": "bash scripts/toneosd.sh",
 		"mame": "mame -w -nofilter -nomouse aes pbobblen"

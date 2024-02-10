@@ -295,7 +295,13 @@ async function main(patchJsonPaths: string[]) {
 
 	const flippedBackPatch = flipBytes(patchedPromData);
 
-	const writePath = '/home/matt/mame/roms/pbobblen.zip';
+	const mameDir = process.env.MAME_ROM_DIR;
+
+	if (!mameDir?.trim()) {
+		throw new Error('MAME_ROM_DIR env variable is not set');
+	}
+
+	const writePath = path.resolve(mameDir, 'pbobblen.zip');
 	await writePatchedZip(flippedBackPatch, cromBuffers, writePath);
 
 	console.log('wrote patched rom to', writePath);

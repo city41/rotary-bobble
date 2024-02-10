@@ -73,12 +73,13 @@ it needs to be built with `cd clownassembler && make`. This is needed for creati
 
 only tested on x64 Ubuntu 22. You will need a recent version of Node, I am using 18.18.2
 
+Set the env variable `MAME_ROM_DIR` to where you store your roms for MAME.
+
 - `yarn install`
 - copy an untouched `pbobblen.zip`, that is intended for MAME, into the root directory of the repo
   - all zips are in gitignore, so the rom won't end up in the repo
-- change the path in `src/patchRom/main.ts` to your MAME rom directory, defaults to `/home/matt/mame/roms/pbobblen.zip`
-- run `ts-node src/patchRom/main.ts src/patches/prom/gameplayRotaryControls.json`
+- run `ts-node src/patchRom/main.ts src/patches/rotary-bobble.json`
 
-Once patched, it will run in MAME if you start it on the command line. You can also run `yarn to-neosd` to create a .neo file. This requires [neosdconv](https://github.com/city41/neosdconv). I would prefer to use TerraOnion's NeoBuilder, but I've not gotten it to work properly. You will need to edit `scripts/toneosd.sh` and change my hardcoded paths.
+`rotary-bobble.json` is the main patch, and applies all changes. The patches in `patches/old` can be applied instead to just do parts. They should be self explanatory from the file name and the description at the top of each patch.
 
-TODO: make these scripts not assume my machine
+Once patched, it will run in MAME if you start it on the command line. You can also run `yarn to-neosd` to create a .neo file. This requires [neosdconv](https://github.com/city41/neosdconv). I would prefer to use TerraOnion's NeoBuilder, but I've not gotten it to work properly.
