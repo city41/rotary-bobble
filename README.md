@@ -31,6 +31,14 @@ In theory the Pico could be powered by the +5v the Neo Geo provides to its contr
 
 ![controller schematic](https://github.com/city41/rotary-bobble/blob/main/controllerSchematic.svg?raw=true)
 
+#### Controller Issues
+
+I've really struggled to get all the noise out of the potentiometer. This shows up as the shooter in the game slightly vibrating as it moves between two values, and the dino kinda "twitches" as it's told to rotate the crank just for one or two frames. I've removed most of it, but have failed to get it all out so far.
+
+I have so other things I'm going to try, and I'm still confident I can get smooth controls.
+
+Long term I also won't use python, but rather a native binary so people can just drag it on and be good to go.
+
 ## Still To Do
 
 Oh lots...
