@@ -80,6 +80,6 @@ Set the env variable `MAME_ROM_DIR` to where you store your roms for MAME.
   - all zips are in gitignore, so the rom won't end up in the repo
 - run `ts-node src/patchRom/main.ts src/patches/rotary-bobble.json`
 
-`rotary-bobble.json` is the main patch, and applies all changes. The patches in `patches/old` can be applied instead to just do parts. They should be self explanatory from the file name and the description at the top of each patch.
+`rotary-bobble.json` is the main patch, and applies all changes. The patches in `patches/individual` can be applied instead to just do parts. They should be self explanatory from the file name and the description at the top of each patch.
 
 Once patched, it will run in MAME if you start it on the command line. You can also run `yarn to-neosd` to create a .neo file. This requires [neosdconv](https://github.com/city41/neosdconv). I would prefer to use TerraOnion's NeoBuilder, but I've not gotten it to work properly.

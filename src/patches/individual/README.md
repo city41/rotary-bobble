@@ -1,6 +1,6 @@
 # Patches
 
-This directory contains current patches
+This directory contains the major pieces of the overall patch divided out into files
 
 - `fixLayerPrinting`: general routines to print strings to the fix layer
 - `gameplayRotaryControls`: adds rotary controls to all gameplay
