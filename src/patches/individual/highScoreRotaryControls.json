@@ -6,13 +6,22 @@
 		"type": "prom",
 		"description": "Make the timer countdown start at 99 instead of 20, to allow more time",
 		"address": "208ec",
-		"patchAsm": ["move.w #5940, $1c(a4)"]
+		"patchAsm": [
+			";; this is how long the high score screen will allow name input. Normally it is 20 seconds.",
+			";; this value is in frames, 5940 / 60 = 99 seconds",
+			";; the game's code is just 'move.w #1200, $1c(a4)' for 20 seconds",
+			"move.w #5940, $1c(a4)"
+		]
 	},
 	{
 		"type": "prom",
 		"description": "Have the high score input routine not skip if no input is detected",
 		"address": "20cea",
-		"patchAsm": ["jmp $20d40"]
+		"patchAsm": [
+			";;; normally if there is no input detected, the high score entry input routine will just bail.",
+			";;; but no input just means 'angle zero' in rotary mode. So it is important to skip this check",
+			"jmp $20d40"
+		]
 	},
 	{
 		"type": "prom",
@@ -35,6 +44,7 @@
 			"bne handleJoystick",
 
 			";;;; rotary controls",
+			";;;; this is pretty much an exact copy of the rotary decoding in the main gameplay input routines",
 			"move.b d0, d1 ; copy input into d1",
 			"move.b d0, d2 ; copy input into d2",
 
@@ -57,6 +67,7 @@
 			"muls #-1,d1 ; negation asked for, multiply angle by -1",
 			"skipNegation:",
 
+			";;; from here on out is specific stuff for high score",
 			"addi.b #60, D1 ; map D1 from (-60,60) -> (0,120)",
 			"cmpi.b #119, D1 ; compare D1 to 119, as 120 is one too big because 120/3 = 40, one above the max",
 			"ble.s skipUpperClamp119 ; is it less than 120? no need to apply upper clamp",
@@ -64,19 +75,25 @@
 			"skipUpperClamp119:",
 
 			"andi.l #$000000ff, d1 ; wipe out D1 above the byte, forcing the byte to become positive",
-			"divu.w #3, D1",
+			"divu.w #3, D1 ; divide d1 which is now (0,119) by 3, accomplishing (0,39) how many characters the high score",
+			";;; screen offers. So each angle on the rotary dial is one letter",
 
-			"move.b D1, $105a89",
+			"move.b D1, $105a89 ; store the pending letter that we just determined where the game expects it",
+			";;; the game will take this value and run with it, enabling rotary controls on high score name input",
 			"bra done",
 
+			";;;;;; due to how this code was injected, cleanly just having the game work normally when in joystick mode",
+			";;;;;; was difficult. I broke down and just did joystick input on my own here. This mimics what the non-hacked",
+			";;;;;; game does. Note that I only do this for high score input. When in joystick mode, gameplay is truly using",
+			";;;;;; the original code, which I think is important",
 			"handleJoystick:",
 			"cmpi.b #0, d0 ; is there no input?",
 			"beq done ; then just bail",
-			"subi.b #1, $108fa0 ; decrement the throttle counter",
+			"subi.b #1, $108fa0 ; decrement the throttle counter, without a throttle letters go by too fast",
 			"bmi updateBasedOnJoystick ; did it go negative? let an input through",
 			"bra done ; not negative? ignore input to let the throttle work",
 			"updateBasedOnJoystick:",
-			"move.b #3, $108fa0 ; rearm the throttle",
+			"move.b #3, $108fa0 ; re-arm the throttle",
 			"move.b $105a89, d1 ; load the current pending letter",
 			"btst #2, d0 ; is left pressed?",
 			"beq handleRight ; if not, jump to right",

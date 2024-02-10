@@ -20,26 +20,26 @@
 			"movea.l $2(a6), a5 ; get this string's start address in ROM",
 			"move.w $6(a6), d6 ; get the countdown value",
 
-			"cmpi.w #0, d6",
+			"cmpi.w #0, d6 ; is the countdown at zero? then nothing to do",
 			"beq exit",
 
 			"move.w #32, $3c0004 ; set vrammod so that when writing to fix we write horizontally",
 			"move.w d7, $3c0000 ; set this string's fix layer write location",
 
 			"setAChar:",
-			"clr.w d7",
+			"clr.w d7 ; get d7 ready to hold the tile index, which is bigger than a byte",
 			"move.b (a5), d7 ; grab a byte of the string into d7",
-			"beq stringDone ; hit the null byte, done",
-			"adda.l #1, a5 ; increment to next byte",
-			"cmpi.w #1, d6",
+			"beq stringDone ; hit the null byte? then we are done",
+			"adda.l #1, a5 ; increment to next byte, note: +(a5) would increment by a word",
+			"cmpi.w #1, d6 ; is the counter at 1? that means erase the string, at zero we won't come in here at all",
 			"beq useEmptyTile",
-			"addi.w #768, d7 ; offset from ascii to fix tile index",
+			"addi.w #768, d7 ; offset from ascii to fix tile index, this is specific to puzzle bobble's s-rom",
 			"bra setTile",
 			"useEmptyTile:",
-			"move.w #$ff, d7",
+			"move.w #$ff, d7 ; $ff is a blank tile used for erasing on the fix layer",
 			"setTile:",
 			"move.w d7, $3c0002 ; load the tile into the fix layer",
-			"bra setAChar",
+			"bra setAChar ; circle back up and do it again for the next letter",
 			"stringDone:",
 			"subi.w #1, d6 ; decrement the counter",
 			"move.w d6, $6(a6) ; stick the counter back in memory",
@@ -63,13 +63,13 @@
 			"move.l A5, D7",
 			"move.l D7, $108dca",
 
-			"lea $108dd2, A6 ; load the version string base address",
+			"lea $108dd2, A6 ; load the version string (ie 'Rotary version a.b.c') base address",
+			"jsr $7ff9c; jump to the general string routine to put it on screen",
+
+			"lea $108dda, A6 ; load the p1 control toggle string (ie either 'rotary' or 'joystick')",
 			"jsr $7ff9c; jump to the general string routine",
 
-			"lea $108dda, A6 ; load the p1 control toggle string",
-			"jsr $7ff9c; jump to the general string routine",
-
-			"lea $108eda, A6 ; load the p2 control toggle string",
+			"lea $108eda, A6 ; load the p2 control toggle string (ie either 'rotary' or 'joystick')",
 			"jsr $7ff9c; jump to the general string routine",
 
 			";;;; game needs A6, so restore it",
@@ -83,7 +83,7 @@
 	},
 	{
 		"type": "prom",
-		"description": "hook in the version string info early at game start",
+		"description": "hook in the version string (ie 'Rotary version a.b.c') info early at game start",
 		"address": "69a",
 		"subroutine": true,
 		"patchAsm": [

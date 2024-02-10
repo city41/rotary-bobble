@@ -1,6 +1,6 @@
 [
 	{
-		"patchDescription": "Final Rotary Bobble patch"
+		"patchDescription": "Final Rotary Bobble patch. This is basically all the individual patches in the individual directory concatted into one. But the strings were moved to the end. The invidivual patches are also better commented"
 	},
 	{
 		"type": "prom",
