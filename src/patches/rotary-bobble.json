@@ -1,0 +1,568 @@
+[
+	{
+		"patchDescription": "Final Rotary Bobble patch"
+	},
+	{
+		"type": "prom",
+		"description": "general string to fix layer routine",
+		"subroutine": true,
+		"patchAsm": [
+			";;; this routine is called with A7 set to a base address with the following data",
+			";;; [w:fix layer location][l: string pointer][w:countdown]",
+
+			"move.w (A6), d7 ; load string's fix layer write location into d7",
+			"movea.l $2(a6), a5 ; get this string's start address in ROM",
+			"move.w $6(a6), d6 ; get the countdown value",
+
+			"cmpi.w #0, d6",
+			"beq exit",
+
+			"move.w #32, $3c0004 ; set vrammod so that when writing to fix we write horizontally",
+			"move.w d7, $3c0000 ; set this string's fix layer write location",
+
+			"setAChar:",
+			"clr.w d7",
+			"move.b (a5), d7 ; grab a byte of the string into d7",
+			"beq stringDone ; hit the null byte, done",
+			"adda.l #1, a5 ; increment to next byte",
+			"cmpi.w #1, d6",
+			"beq useEmptyTile",
+			"addi.w #768, d7 ; offset from ascii to fix tile index",
+			"bra setTile",
+			"useEmptyTile:",
+			"move.w #$ff, d7",
+			"setTile:",
+			"move.w d7, $3c0002 ; load the tile into the fix layer",
+			"bra setAChar",
+			"stringDone:",
+			"subi.w #1, d6 ; decrement the counter",
+			"move.w d6, $6(a6) ; stick the counter back in memory",
+
+			"exit:",
+			"rts"
+		]
+	},
+	{
+		"type": "prom",
+		"description": "string manager routine",
+		"address": "f8e",
+		"subroutine": true,
+		"patchAsm": [
+			"jsr $1da6 ; jump to the original routine we just clobbered the call of",
+
+			";;;; game needs A6, so we need to save it",
+			"move.l A6, D7",
+			"move.l D7, $108dce",
+			";;;; game needs A5, so we need to save it",
+			"move.l A5, D7",
+			"move.l D7, $108dca",
+
+			"lea $108dd2, A6 ; load the version string base address",
+			"jsr $7ffaa; jump to the general string routine",
+
+			"lea $108dda, A6 ; load the p1 control toggle string",
+			"jsr $7ffaa; jump to the general string routine",
+
+			"lea $108eda, A6 ; load the p2 control toggle string",
+			"jsr $7ffaa; jump to the general string routine",
+
+			";;;; game needs A6, so restore it",
+			"move.l $108dce, D7",
+			"movea.l D7, A6",
+			";;;; game needs A5, so restore it",
+			"move.l $108dca, D7",
+			"movea.l D7, A5",
+			"rts"
+		]
+	},
+	{
+		"type": "prom",
+		"description": "hook in the version string info early at game start",
+		"address": "69a",
+		"subroutine": true,
+		"patchAsm": [
+			";;; do what was just clobbered for the jts",
+			"move.b #1, $10fdaf ; set BIOS_USE_MODE to 'Title'",
+
+			";;; set up the version string values for the general string routine",
+			";;; [w:fix layer location][l: string pointer][w:countdown]",
+			"move.w #$7322, $108dd2 ; set up the version string's fix write location",
+			"move.l #$7fc8e, $108dd4 ; set up the pointer to the version string",
+			"move.w #300, $108dd8 ; set its countdown",
+			"rts"
+		]
+	},
+	{
+		"type": "prom",
+		"description": "clean up the bytes left behind by the jsr",
+		"address": "6a0",
+		"patchAsm": ["nop"]
+	},
+	{
+		"type": "prom",
+		"description": "Force 2ec94 (the routine just after the giant input routine) to go into our own subroutine, which sets delta (108212 for p2 and 1082ae for p2) based on the rotary input",
+		"address": "2ec94",
+		"subroutine": true,
+		"patchAsm": [
+			";;;;; recreate what this routine originally did ;;;;;",
+			"move.b $83(A4), D0",
+			"andi.w #$10, D0",
+			"lsr.w #4, D0",
+			"move.w D0, $12(A4)",
+			";;;;;; end recreation ;;;;;",
+
+			"clr.w d0",
+			"clr.w d1",
+			"clr.w d2",
+
+			"move.l a4, d0",
+			"cmpi.l #$108202, d0 ; is a4 pointed at p1's base address?",
+			"beq loadP1Input ; if so, jump down and load p1's input, else p2's",
+			"move.b $10fd9C, d0 ; load BIOS_P2CURRENT",
+			"move.b $108f02, d3 ; load the p2 input toggle value, 0 = rotary, 1 = joystick",
+			"bra doneLoadingInput",
+			"loadP1Input:",
+			"move.b $10fd96, d0 ; load BIOS_P1CURRENT",
+			"move.b $108e02, d3 ; load the p1 input toggle value, 0 = rotary, 1 = joystick",
+			"doneLoadingInput:",
+
+			"cmpi.b #1, d3 ; are we in joystick mode?",
+			"beq done ; if so, don't do anything",
+
+			"move.b d0, d1 ; copy input into d1",
+			"move.b d0, d2 ; copy input into d2",
+
+			";;;; get rid of D, place BC in the right spot",
+			"andi.b #$7f, d0 ; turn the D bit off, it is for sign and we are only calc'ing a positive angle right now",
+			"lsr.b #5, d0 ; shift it down by 5 to get BC all by itself",
+			"lsl.b #4, d0 ; then shift BC back up into the higher nibble, to make room for RLDU",
+
+			"andi.b #$f, d1 ; take the copy of input in d1, and throw away everything but RLDU",
+			"add.b d0, d1 ; d1 is now CBRLDU, which is the positive angle we want, up to 63",
+
+			"cmpi.b #60, D1 ; compare D1 to 60",
+			"ble.s skipUpperClamp ; is it less than 61? no need to apply upper clamp",
+			"move.b #60, D1 ; it is too big, clamp it down to 60",
+			"skipUpperClamp:",
+
+			"; at this point D1 is (0,60), ie positive angles, and d2 is the original input",
+			"; if D was set, that means we want to negate the angle to (-60,0)",
+			"btst #7, D2 ; see if D was set",
+			"beq skipNegation; not set, no need to negate",
+			"muls.w #-1,d1 ; negation asked for, multiply angle by -1",
+			"skipNegation:",
+
+			";;;; at this point, d1.b is the current rotary angle",
+			"move.w d1, d2 ; save d1 into d2",
+			"move.w $60(A4), d0 ; load the previous angle into d0",
+			"sub.w d0, d1 ; get the delta and stick it into d1",
+
+			"move.w d1, $10(A4) ; now finally set the delta into where the game expects it",
+
+			";;;;; push input based on delta into our temp address so our fake input routine can inject it",
+			"cmpi.b #0, d1",
+
+			"beq.s setMovementToZero",
+
+			"ble.s skipRightMovement",
+			"move.b #$4, $a26(A4) ; our delta was positive, so tell the dino to move right",
+			"bra done",
+			"skipRightMovement:",
+			"move.b #$8, $a26(A4); our delta was negative, so tell the dino to move left",
+			"bra done",
+			"setMovementToZero:",
+			"move.b #$0, $a26(A4) ; our delta was zero, tell the dino to chill",
+
+			"done:",
+			"rts"
+		]
+	},
+	{
+		"type": "prom",
+		"description": "Ensure the 2ec94 routine ignores the garbage we left behind",
+		"address": "2ec9a",
+		"patchAsm": ["rts", "nop", "nop", "nop"]
+	},
+	{
+		"type": "prom",
+		"description": "Have it read the fake p1 input and real p1 input, and OR them together, also handle start holding to toggle controls",
+		"address": "1016",
+		"subroutine": true,
+		"patchAsm": [
+			";;; this is an unusual subroutine in that it leaves a value in D0 that the main game",
+			";;; code will use. Normally the Dx registers are free game in any subroutine and the game",
+			";;; wont make assumptions about them. But we are forcing the game to jump here to do this",
+			";;; so it's not really a true subroutine",
+
+			";;; keep track of holding start for toggling",
+			";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;",
+			"move.b $10fdac, d0 ; load BIOS_STATCURNT",
+			"move.w $108e00, d1 ; load current counter",
+			"btst #0, d0 ; is p1 start down?",
+			"beq clearToggleCounter ; it's not? reset the counter",
+			"addi.w #1, d1 ; increment the counter",
+			"cmpi.w #110, d1 ; did the counter just hit exactly 110?",
+			"bne saveCounter ; it didn't? not toggling then",
+			";;; doing the toggle",
+			"move.b $108e02, d3 ; load the current toggle value",
+			"move.b #1, d2",
+			"sub.b d3, d2",
+			"move.b d2, $108e02 ; put it back in memory",
+			";;;; set up the notification string",
+			"move.w #$7038, $108dda ; set the fix layer write location",
+			"cmpi.b #0, d2 ; see what string we need to load based on the toggle ",
+			"beq loadJoyOffString",
+			"move.l #$7fc70, $108ddc ; set the string pointer to joy on",
+			"bra movePastStringPointer",
+			"loadJoyOffString:",
+			"move.l #$7fc84, $108ddc ; set the string pointer to p1 joy off",
+			"movePastStringPointer:",
+			"move.w #100, $108de0 ; set the countdown to 100",
+			"bra saveCounter ; purposely dont clear the counter. only clear via let go of start",
+			"clearToggleCounter:",
+			"move.w #0, d1 ; clear the counter",
+			"saveCounter:",
+			"move.w d1, $108e00",
+			";;; END: keep track of holding start for toggling",
+			";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;",
+
+			"move.b $10fd96, D0 ; load the real changed input at BIOS_P1CURRENT",
+
+			"move.b $108e02, d3 ; load the p1 input toggle value, 0 = rotary, 1 = joystick",
+			"cmpi.b #1, d3 ; check to see if in joystick mode",
+			"beq done ; if so, don't fake anything",
+
+			"andi.b #$10,d0 ; wipe out anything that isnt the A button",
+			"move.b $108c28, D1 ; load our fake p1 input into D1",
+			"or.b D1, D0; combine the fake left/right with real A",
+
+			"done:",
+			"rts"
+		]
+	},
+	{
+		"type": "prom",
+		"description": "Have it read the fake p2 input and real p2 input, and OR them together, also handle start holding to toggle controls",
+		"address": "1032",
+		"subroutine": true,
+		"patchAsm": [
+			";;; this is an unusual subroutine in that it leaves a value in D0 that the main game",
+			";;; code will use. Normally the Dx registers are free game in any subroutine and the game",
+			";;; wont make assumptions about them. But we are forcing the game to jump here to do this",
+			";;; so it's not really a true subroutine",
+
+			";;; keep track of holding start for toggling",
+			";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;",
+			"move.b $10fdac, d0 ; load BIOS_STATCURNT",
+			"move.w $108f00, d1 ; load current counter",
+			"btst #2, d0 ; is p2 start down?",
+			"beq clearToggleCounter ; it's not? reset the counter",
+			"addi.w #1, d1 ; increment the counter",
+			"cmpi.w #110, d1 ; did the counter just hit 110 exactly?",
+			"bne saveCounter ; it didn't? not toggling then",
+			";;; doing the toggle",
+			"move.b $108f02, d3 ; load the current toggle value",
+			"move.b #1, d2",
+			"sub.b d3, d2",
+			"move.b d2, $108f02 ; put it back in memory",
+			";;;; set up the notification string",
+			"move.w #$73f8, $108eda ; set the fix layer write location",
+			"cmpi.b #0, d2 ; see what string we need to load based on the toggle ",
+			"beq loadJoyOffString",
+			"move.l #$7fc70, $108edc ; set the string pointer to joy on",
+			"bra movePastStringPointer",
+			"loadJoyOffString:",
+			"move.l #$7fc7a, $108edc ; set the string pointer to p2 joy off",
+			"movePastStringPointer:",
+			"move.w #100, $108ee0 ; set the countdown to 100",
+			"bra saveCounter ; purposely dont clear the counter. only clear via let go of start",
+			"clearToggleCounter:",
+			"move.w #0, d1 ; clear the counter",
+			"saveCounter:",
+			"move.w d1, $108f00",
+			";;; END: keep track of holding start for toggling",
+			";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;",
+
+			"move.b $10fd9c, D0 ; load the real changed input at BIOS_P2CURRENT",
+
+			"move.b $108f02, d3 ; load the p2 input toggle value, 0 = rotary, 1 = joystick",
+			"cmpi.b #1, d3 ; check to see if in joystick mode",
+			"beq done ; if so, don't fake anything",
+
+			"andi.b #$10,d0 ; wipe out anything that isnt the A button",
+			"move.b $108cc4, D1 ; load our fake p2 input into D1",
+			"or.b D1, D0; combine the fake left/right with real A",
+
+			"done:",
+			"rts"
+		]
+	},
+	{
+		"type": "prom",
+		"description": "Make the timer countdown start at 99 instead of 20, to allow more time",
+		"address": "208ec",
+		"patchAsm": ["move.w #5940, $1c(a4)"]
+	},
+	{
+		"type": "prom",
+		"description": "Have the high score input routine not skip if no input is detected",
+		"address": "20cea",
+		"patchAsm": ["jmp $20d40"]
+	},
+	{
+		"type": "prom",
+		"description": "Have the high score input routine jump to our subroutine which sets pending letter based on rotary",
+		"address": "20d40",
+		"subroutine": true,
+		"patchAsm": [
+			"clr.l d1",
+			"move.b $10fdb6, d0; load BIOS_PLAYER_MOD1 to see if p1 is playing",
+			"beq loadP2current ; zero? then p2 is playing",
+			"move.b $10fd96, d0 ; load BIOS_P1CURRENT",
+			"move.b $108e02, d2 ; load the p1 input type toggle. 0 = rotary, 1 = joystick",
+			"bra doneLoadCurrent",
+			"loadP2current:",
+			"move.b $10fd9c, d0 ; load BIOS_P2CURRENT",
+			"move.b $108f02, d2 ; load the p2 input type toggle. 0 = rotary, 1 = joystick",
+			"doneLoadCurrent:",
+
+			"cmpi.b #0, d2 ; is the player currently using rotary?",
+			"bne handleJoystick",
+
+			";;;; rotary controls",
+			"move.b d0, d1 ; copy input into d1",
+			"move.b d0, d2 ; copy input into d2",
+
+			";;;; get rid of D, place BC in the right spot",
+			"andi.b #$7f, d0 ; turn the D bit off, it is for sign and we are only calc'ing a positive angle right now",
+			"lsr.b #5, d0 ; shift it down by 5 to get BC all by itself",
+			"lsl.b #4, d0 ; then shift BC back up into the higher nibble, to make room for RLDU",
+
+			"andi.b #$f, d1 ; take the copy of input in d1, and throw away everything but RLDU",
+			"add.b d0, d1 ; d1 is now CBRLDU, which is the positive angle we want, up to 63",
+
+			"cmpi.b #60, D1 ; compare D1 to 60",
+			"ble.s skipUpperClamp60 ; is it less than 61? no need to apply upper clamp",
+			"move.b #60, D1 ; it is too big, clamp it down to 60",
+			"skipUpperClamp60:",
+
+			";;;; at this point D1 is (0,60), ie positive angles, and d2 is the original input",
+			"btst #7, D2 ; see if D was set",
+			"beq skipNegation; not set, no need to negate",
+			"muls #-1,d1 ; negation asked for, multiply angle by -1",
+			"skipNegation:",
+
+			"addi.b #60, D1 ; map D1 from (-60,60) -> (0,120)",
+			"cmpi.b #119, D1 ; compare D1 to 119, as 120 is one too big because 120/3 = 40, one above the max",
+			"ble.s skipUpperClamp119 ; is it less than 120? no need to apply upper clamp",
+			"move.b #119, D1 ; it is too big, clamp it down to 119",
+			"skipUpperClamp119:",
+
+			"andi.l #$000000ff, d1 ; wipe out D1 above the byte, forcing the byte to become positive",
+			"divu.w #3, D1",
+
+			"move.b D1, $105a89",
+			"bra done",
+
+			"handleJoystick:",
+			"cmpi.b #0, d0 ; is there no input?",
+			"beq done ; then just bail",
+			"subi.b #1, $108fa0 ; decrement the throttle counter",
+			"bmi updateBasedOnJoystick ; did it go negative? let an input through",
+			"bra done ; not negative? ignore input to let the throttle work",
+			"updateBasedOnJoystick:",
+			"move.b #3, $108fa0 ; rearm the throttle",
+			"move.b $105a89, d1 ; load the current pending letter",
+			"btst #2, d0 ; is left pressed?",
+			"beq handleRight ; if not, jump to right",
+			"cmpi.b #0, d1 ; is the current pending letter at zero?",
+			"bne decrement ; if it is not, we can just decement it",
+			"move.b #39, d1 ; otherwise wrap it around to the max value",
+			"bra jsdone",
+			"handleRight:",
+			"cmpi.b #39, d1; is the current pending letter at the max?",
+			"bne increment ; if it is not, we can increment it",
+			"move.b #0, d1 ; otherwise, wrap it around to the min value",
+			"bra jsdone",
+			"decrement:",
+			"subi.b #1, d1",
+			"bra jsdone",
+			"increment:",
+			"addi.b #1, d1",
+
+			"jsdone:",
+			"move.b d1, $105a89",
+
+			"done:",
+			"rts"
+		]
+	},
+	{
+		"type": "prom",
+		"description": "Once we return from our subroutine, the original routine needs to skip past its input handling",
+		"address": "20d46",
+		"patchAsm": ["jmp $20d6c"]
+	},
+	{
+		"type": "crom",
+		"description": "how to play - rotary left",
+		"imgFile": "howToPlayRotaryLeft.png",
+		"paletteFile": "howToPlayRotaryPalette.png",
+		"destStartingIndex": "9c00"
+	},
+	{
+		"type": "crom",
+		"description": "how to play - rotary center",
+		"imgFile": "howToPlayRotaryCenter.png",
+		"paletteFile": "howToPlayRotaryPalette.png",
+		"destStartingIndex": "9c09"
+	},
+	{
+		"type": "crom",
+		"description": "how to play - rotary right",
+		"imgFile": "howToPlayRotaryRight.png",
+		"paletteFile": "howToPlayRotaryPalette.png",
+		"destStartingIndex": "9c12"
+	},
+	{
+		"type": "prom",
+		"description": "the left rotary frame tiles written into prom",
+		"address": "adc4",
+		"patchAsm": [
+			"dc.w $9c00",
+			"dc.w $0000",
+			"dc.w $9c01",
+			"dc.w $0000",
+			"dc.w $9c02",
+			"dc.w $0000",
+			"dc.w $9c03",
+			"dc.w $0000",
+			"dc.w $9c04",
+			"dc.w $0000",
+			"dc.w $9c05",
+			"dc.w $0000",
+			"dc.w $9c06",
+			"dc.w $0000",
+			"dc.w $9c07",
+			"dc.w $0000",
+			"dc.w $9c08",
+			"dc.w $0000"
+		]
+	},
+	{
+		"type": "prom",
+		"description": "the center rotary frame tiles written into prom",
+		"address": "ad9c",
+		"patchAsm": [
+			"dc.w $9c09",
+			"dc.w $0000",
+			"dc.w $9c0a",
+			"dc.w $0000",
+			"dc.w $9c0b",
+			"dc.w $0000",
+			"dc.w $9c0c",
+			"dc.w $0000",
+			"dc.w $9c0d",
+			"dc.w $0000",
+			"dc.w $9c0e",
+			"dc.w $0000",
+			"dc.w $9c0f",
+			"dc.w $0000",
+			"dc.w $9c10",
+			"dc.w $0000",
+			"dc.w $9c11",
+			"dc.w $0000"
+		]
+	},
+	{
+		"type": "prom",
+		"description": "the right rotary frame tiles written into prom",
+		"address": "adec",
+		"patchAsm": [
+			"dc.w $9c12",
+			"dc.w $0000",
+			"dc.w $9c13",
+			"dc.w $0000",
+			"dc.w $9c14",
+			"dc.w $0000",
+			"dc.w $9c15",
+			"dc.w $0000",
+			"dc.w $9c16",
+			"dc.w $0000",
+			"dc.w $9c17",
+			"dc.w $0000",
+			"dc.w $9c18",
+			"dc.w $0000",
+			"dc.w $9c19",
+			"dc.w $0000",
+			"dc.w $9c1a",
+			"dc.w $0000"
+		]
+	},
+	{
+		"type": "crom",
+		"description": "how to play - instructions, joystick -> spinner",
+		"imgFile": "howToPlayInstructions.png",
+		"paletteFile": "howToPlayInstructionsPalette.png",
+		"destStartingIndex": "9c1b"
+	},
+	{
+		"type": "prom",
+		"description": "joystick -> spinner changes to tile indexes in prom, first row",
+		"address": "a564",
+		"patchAsm": [
+			"dc.w $9c1b",
+			"dc.w $0000",
+			"dc.w $9c1c",
+			"dc.w $0000",
+			"dc.w $9c1d",
+			"dc.w $0000",
+			"dc.w $9c1e",
+			"dc.w $0000",
+			"dc.w $9c1f",
+			"dc.w $0000",
+			"dc.w $9c20"
+		]
+	},
+	{
+		"type": "prom",
+		"description": "joystick -> spinner changes to tile indexes in prom, second row",
+		"address": "a584",
+		"patchAsm": [
+			"dc.w $9c21",
+			"dc.w $0000",
+			"dc.w $9c22",
+			"dc.w $0000",
+			"dc.w $9c23",
+			"dc.w $0000",
+			"dc.w $9c24",
+			"dc.w $0000",
+			"dc.w $9c25",
+			"dc.w $0000"
+		]
+	},
+	{
+		"type": "prom",
+		"description": "rotary version string",
+		"string": true,
+		"value": "Rotary v1.0.0a"
+	},
+	{
+		"type": "prom",
+		"description": "p1: just toggled joystick off string",
+		"string": true,
+		"value": "Rotary  "
+	},
+	{
+		"type": "prom",
+		"description": "p2: just toggled joystick off string",
+		"string": true,
+		"value": "  Rotary"
+	},
+	{
+		"type": "prom",
+		"description": "just toggled joystick on string",
+		"string": true,
+		"value": "Joystick"
+	}
+]

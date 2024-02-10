@@ -10,24 +10,14 @@ https://github.com/city41/rotary-bobble/assets/141159/24a6326e-b90c-4391-a242-a1
 
 ### ROM Hack
 
-Currently the full and best patch is
+The ROM hack is complete. It...
 
-```
-ts-node src/patchRom/main.ts src/patches/fixLayerPrinting.json \
-src/patches/gameplayRotaryControls.json  \
-src/patches/highScoreRotaryControls.json \
-src/patches/howToPlayRotary.json
-```
+- gives rotary controls to all gameplay
+- rotary input on high score name entry screen
+- how to play screen has a spinner instead of a joystick
+- each player can hold start for about 1.5 seconds to toggle between joystick and rotary controls. Useful if say playing a two player game and only have one rotary controller.
 
-The must be applied in that order, as the patches have some absolute addresses in them that depend on the patch order to be correct.
-
-`src/patches/fixLayerPrinting.json` enables printing some strings to the screen. First it prints the version of the hack at startup. Then prints either "rotary" or "joystk" to the screen on p1 or p2 side whenever a player toggles the input type. Hold start for 2 seconds to toggle.
-
-`src/patches/gameplayRotaryControls.json` cleanly adds in rotary controls for all game play.
-
-`src/patches/highScoreRotaryControls.json` adds rotary controls to the high score entry screen. It also sets the countdown timer to 99 instead of 20. The more time is needed due to needing to get used to using rotary on this screen.
-
-`src/patches/howToPlayRotary.json` changes the how to play screen from using a joystick to a rotary/spinner
+The complete patch is at `src/patches/rotary-bobble.json`
 
 ### Controller
 

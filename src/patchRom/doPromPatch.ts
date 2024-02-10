@@ -132,7 +132,12 @@ async function addStringToProm(
 		hexDump(subroutineBytes)
 	);
 
-	const subroutineStartAddress = subroutineInsertEnd - subroutineBytes.length;
+	let subroutineStartAddress = subroutineInsertEnd - subroutineBytes.length;
+
+	if (subroutineStartAddress & 1) {
+		// the 68k cannot address odd bytes, need to back off one to get an even address
+		subroutineStartAddress -= 1;
+	}
 
 	console.log(
 		`Adding str (${str}) at address $${subroutineStartAddress.toString(16)}`
@@ -161,7 +166,12 @@ async function replaceWithSubroutine(
 		hexDump(subroutineBytes)
 	);
 
-	const subroutineStartAddress = subroutineInsertEnd - subroutineBytes.length;
+	let subroutineStartAddress = subroutineInsertEnd - subroutineBytes.length;
+
+	if (subroutineStartAddress & 1) {
+		// the 68k cannot address odd bytes, need to back off one to get an even address
+		subroutineStartAddress -= 1;
+	}
 
 	let jsrAsm;
 	let jsrAddedData: number[];
