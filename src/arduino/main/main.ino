@@ -1,22 +1,20 @@
 
                 // on pcb <----> from RB15
-int BTN_D = 12; // purple <----> blue
-int BTN_C = 11; // blue   <----> orange
-int BTN_B = 10; // green  <----> red
-int DIR_R = 9;  // yellow <----> yellow
-int DIR_L = 4;  // red    <----> white
-int DIR_D = 3;  // orange <----> green
-int DIR_U = 2;  // brown  <----> orange
+const int BTN_D = 12; // purple <----> blue
+const int BTN_C = 11; // blue   <----> orange
+const int BTN_B = 10; // green  <----> red
+const int DIR_R = 9;  // yellow <----> yellow
+const int DIR_L = 4;  // red    <----> white
+const int DIR_D = 3;  // orange <----> green
+const int DIR_U = 2;  // brown  <----> orange
 //  GND                   <----> white 
 
-int MIN_EXTENT = 0;
-int MAX_EXTENT = 127;
-int MIN_ANGLE = -60;
-int MAX_ANGLE = 60;
+const int MIN_EXTENT = 0;
+const int MAX_EXTENT = 127;
+const int MIN_ANGLE = -60;
+const int MAX_ANGLE = 60;
 
-int BTN_D_INDEX = 6;
-
-int pins[7] = { DIR_U, DIR_D, DIR_L, DIR_R, BTN_B, BTN_C, BTN_D };
+int pins[7] = { DIR_U, DIR_D, DIR_L, DIR_R, BTN_B, BTN_C };
 
 void setup() {
   pinMode(BTN_D, OUTPUT);
@@ -26,8 +24,6 @@ void setup() {
   pinMode(DIR_L, OUTPUT);
   pinMode(DIR_D, OUTPUT);
   pinMode(DIR_U, OUTPUT);
-
-  //Serial.begin(9600);
 }
 
 int getPotValue() {
@@ -48,15 +44,6 @@ int mapValue(float inputMin, float inputMax, float outputMin, float outputMax, f
   return (int)(outputMin + ((outputMax - outputMin) / (inputMax - inputMin)) * (val - inputMin));
 }
 
-int bitplane[7] = { 0, 0, 0, 0, 0, 0, 0 };
-
-void toBitplane(int value) {
-  for (int i = 0; i < 7; ++i) {
-    bitplane[i] = value & 1;
-    value = value >> 1;
-  }
-}
-
 void loop() {
   int potValue = getPotValue();
 
@@ -70,22 +57,15 @@ void loop() {
 
   int angle = mapValue(MIN_EXTENT, MAX_EXTENT, MIN_ANGLE, MAX_ANGLE, potValue);
 
-  toBitplane(abs(angle));
+  // btn D is a sign bit
+  digitalWrite(BTN_D, angle < 0);
 
-  if (angle < 0) {
-    bitplane[BTN_D_INDEX] = 1;
-  } else {
-    bitplane[BTN_D_INDEX] = 0;
+  angle = abs(angle);
+  for (int i = 0; i < 6; ++i) {
+    digitalWrite(pins[i], angle & 1);
+    angle = angle >> 1;
   }
-
-  //Serial.print("angle: ");
-  //Serial.print(angle);
-  //Serial.print(" bp: ");
-  for (int i = 0; i < 7; ++i) {
-    //Serial.print(bitplane[i]);
-    digitalWrite(pins[i], bitplane[i]);
-  }
-  //Serial.println();
 
   delay(8);
 }
+
