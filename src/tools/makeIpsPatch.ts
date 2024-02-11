@@ -29,15 +29,17 @@ function toBytes(num: number, byteCount: number): number[] {
 }
 
 function getDiffs(originalBinary: number[], hackedBinary: number[]): Diff[] {
+	if (originalBinary.length !== hackedBinary.length) {
+		throw new Error(
+			`hackedBinary(${hackedBinary.length}) and originalBinary(${originalBinary.length}) are different lengths`
+		);
+	}
+
 	const diffs: Diff[] = [];
 	let currentDiff: Diff | null = null;
 
-	for (
-		let i = 0;
-		i < Math.max(originalBinary.length, hackedBinary.length);
-		i++
-	) {
-		if (originalBinary[i] !== hackedBinary[i]) {
+	for (let i = 0; i < originalBinary.length; i++) {
+		if (hackedBinary[i] !== originalBinary[i]) {
 			if (currentDiff === null) {
 				currentDiff = { offset: i, length: 1, diffBytes: [hackedBinary[i]] };
 			} else {
@@ -59,11 +61,33 @@ function getDiffs(originalBinary: number[], hackedBinary: number[]): Diff[] {
 	return diffs;
 }
 
+export function dumpDiffs(diffs: Diff[], originalBinary: number[]) {
+	for (const diff of diffs) {
+		console.log(
+			`diff at ${diff.offset} of length: ${diff.length} (diffBytes.length: ${diff.diffBytes.length})`
+		);
+
+		console.log('hk --- og');
+		console.log('---------');
+		for (let i = 0; i < diff.diffBytes.length; i++) {
+			console.log(
+				diff.diffBytes[i].toString(16),
+				'---',
+				originalBinary[i + diff.offset].toString(16)
+			);
+		}
+
+		console.log('\n');
+	}
+}
+
 function createIpsPatch(
-	hackedBinary: number[],
-	originalBinary: number[]
+	originalBinary: number[],
+	hackedBinary: number[]
 ): number[] {
-	const diffs = getDiffs(hackedBinary, originalBinary);
+	const diffs = getDiffs(originalBinary, hackedBinary);
+
+	// dumpDiffs(diffs, originalBinary);
 
 	const ipsDiffData = diffs.flatMap((d) => {
 		return [...toBytes(d.offset, 3), ...toBytes(d.length, 2), ...d.diffBytes];
@@ -75,33 +99,31 @@ function createIpsPatch(
 }
 
 async function main(
-	hackedPath: string,
 	originalPath: string,
+	hackedPath: string,
 	destPath: string
 ): Promise<void> {
-	const hackedBinary = Array.from(
-		new Uint8Array(await fsp.readFile(hackedPath))
-	);
-	const originalBinary = Array.from(
-		new Uint8Array(await fsp.readFile(originalPath))
-	);
+	const originalBuffer = await fsp.readFile(originalPath);
+	const originalBinary = Array.from(originalBuffer);
+	const hackedBuffer = await fsp.readFile(hackedPath);
+	const hackedBinary = Array.from(hackedBuffer);
 
-	const ipsPatchData = createIpsPatch(hackedBinary, originalBinary);
+	const ipsPatchData = createIpsPatch(originalBinary, hackedBinary);
 
 	return fsp.writeFile(destPath, Uint8Array.from(ipsPatchData));
 }
 
-const [_tsnode, _makeIpsPatch, hackedBinaryPath, originalBinaryPath, destPath] =
+const [_tsnode, _makeIpsPatch, originalBinaryPath, hackedBinaryPath, destPath] =
 	process.argv;
 
-if (!hackedBinaryPath || !originalBinaryPath) {
+if (!originalBinaryPath || !hackedBinaryPath || !destPath) {
 	usage();
 	process.exit(1);
 }
 
 main(
-	path.resolve(process.cwd(), hackedBinaryPath),
 	path.resolve(process.cwd(), originalBinaryPath),
+	path.resolve(process.cwd(), hackedBinaryPath),
 	path.resolve(process.cwd(), destPath)
 )
 	.then(() => console.log('done'))
