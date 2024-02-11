@@ -21,35 +21,25 @@ The complete patch is at `src/patches/rotary-bobble.json`
 
 ### Controller
 
-I have built a rough, but working, prototype
+I have built a rough, but working, prototype using an Arduino Nano.
 
-![controller prototype](https://github.com/city41/rotary-bobble/blob/main/prototypeBoard.png?raw=true)
+![controller prototype](https://github.com/city41/rotary-bobble/blob/main/arduinoPrototype.jpg?raw=true)
 
 It uses transistors to control RLDU, B, C and D. It has normal push buttons for A, Select, Start.
 
-In theory the Pico could be powered by the +5v the Neo Geo provides to its controllers, but I've had issues with this. So for now powering the Pico via standard USB.
+I also had a prototype using a Raspberry Pi Pico, but always had a little bit of noise in the Pico's analog readings, causing a bit of jitter during gameplay. The Nano has no jitter and provides perfect controls.
 
-![controller schematic](https://github.com/city41/rotary-bobble/blob/main/controllerSchematic.svg?raw=true)
-
-#### Controller Issues
-
-I've really struggled to get all the noise out of the potentiometer. This shows up as the shooter in the game slightly vibrating as it moves between two values, and the dino kinda "twitches" as it's told to rotate the crank just for one or two frames. I've removed most of it, but have failed to get it all out so far.
-
-I have so other things I'm going to try, and I'm still confident I can get smooth controls.
-
-Long term I also won't use python, but rather a native binary so people can just drag it on and be good to go.
+For more info, check the `src/pico` and `src/arduino` folders.
 
 ## Still To Do
-
-Oh lots...
 
 - Controller
 
   - [x] build a working prototype
-  - [ ] circuit can likely be improved, just winged it...
-  - [ ] resolve the potentiometer noise issue, possibly with an LM4040?
-  - [ ] A switch to disable rotary input
-  - [ ] Figure out a good power solution for the Pico
+  - [x] circuit can likely be improved, just winged it...
+  - [x] resolve the potentiometer noise issue, possibly with an LM4040?
+  - [ ] Simple input mode to handle things like NeoSD's menu
+  - [ ] Figure out a good power solution for the Arduino
   - [ ] Instructions on how to create a controller
 
 - ROM Hack
