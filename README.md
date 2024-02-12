@@ -31,6 +31,19 @@ I also had a prototype using a Raspberry Pi Pico, but always had a little bit of
 
 For more info, check the `src/pico` and `src/arduino` folders.
 
+## IPS Patches
+
+IPS patches are available in the `ipsPatches` directory. To patch a ROM
+
+1. unzip pbobblen.zip
+2. patch `d96-02.c5` with `pbobblen.d96-02.c5.ips` using an IPS patcher
+3. patch `d96-03.c6` with `pbobblen.d96-03.c6.ips` using an IPS patcher
+4. patch `d96-07.ep1` with `pbobblen.d96-07.ep1.ips` using an IPS patcher
+5. Make sure the three patched files keep the original name of the file they patched (overwrite it)
+6. zip the files back up into pbobblen.zip
+
+NOTE: MAME will notice the ROM is different and not launch it from the UI. You must launch it from the command line if using MAME
+
 ## Still To Do
 
 - Controller
