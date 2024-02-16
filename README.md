@@ -52,7 +52,7 @@ NOTE: MAME will notice the ROM is different and not launch it from the UI. You m
   - [x] circuit can likely be improved, just winged it...
   - [x] resolve the potentiometer noise issue, possibly with an LM4040?
   - [ ] Simple input mode to handle things like NeoSD's menu
-  - [ ] Figure out a good power solution for the Arduino
+  - [x] Figure out a good power solution for the Arduino
   - [ ] Instructions on how to create a controller
 
 - ROM Hack

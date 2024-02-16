@@ -6,4 +6,4 @@ This is the recommended microcontroller for building the controller. It provides
 
 ## Schematic
 
-![schematic](./arduinoControllerSchematic.svg)
+![schematic](./arduinoKicadSchematic.svg)
