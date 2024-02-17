@@ -545,7 +545,7 @@
 		"type": "prom",
 		"description": "rotary version string",
 		"string": true,
-		"value": "Rotary v1.0.0a"
+		"value": "Rotary v1.0.1a"
 	},
 	{
 		"type": "prom",
