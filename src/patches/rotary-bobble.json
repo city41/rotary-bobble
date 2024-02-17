@@ -564,5 +564,98 @@
 		"description": "just toggled joystick on string",
 		"string": true,
 		"value": "Joystick"
+	},
+	{
+		"type": "prom",
+		"description": "Jump to subroutine to choose difficulty via rotary",
+		"address": "686e",
+		"subroutine": true,
+		"patchAsm": [
+			"move.l d1, $108fc0 ; save d1 as the game needs it",
+			"move.l d2, $108fc8 ; save d2 as the game needs it",
+			"move.b d3, $108fd0 ; save d3 as the game needs it",
+
+			"clr.l d1",
+			"move.b $10fdb6, d0; load BIOS_PLAYER_MOD1 to see if p1 is playing",
+			"beq loadP2current ; zero? then p2 is playing",
+			"move.b $10fd96, d0 ; load BIOS_P1CURRENT",
+			"move.b $108e02, d2 ; load the p1 input type toggle. 0 = rotary, 1 = joystick",
+			"move.b $10fd97, d3 ; load BIOS_P1CHANGE",
+			"bra doneLoadCurrent",
+			"loadP2current:",
+			"move.b $10fd9c, d0 ; load BIOS_P2CURRENT",
+			"move.b $108f02, d2 ; load the p2 input type toggle. 0 = rotary, 1 = joystick",
+			"move.b $10fd9d, d3 ; load BIOS_P2CHANGE",
+			"doneLoadCurrent:",
+
+			"move.b d0, $108fca ; store the input off so we can restore it",
+
+			"cmpi.b #0, d2 ; is the player currently using rotary?",
+			"bne handleJoystick",
+
+			";;;; rotary controls",
+			";;;; this is pretty much an exact copy of the rotary decoding in the main gameplay input routines",
+			"move.b d0, d1 ; copy input into d1",
+			"move.b d0, d2 ; copy input into d2",
+			"move.b d0, $108fca ; store the input off so we can restore it",
+
+			";;;; get rid of D, place BC in the right spot",
+			"andi.b #$7f, d0 ; turn the D bit off, it is for sign and we are only calc'ing a positive angle right now",
+			"lsr.b #5, d0 ; shift it down by 5 to get BC all by itself",
+			"lsl.b #4, d0 ; then shift BC back up into the higher nibble, to make room for RLDU",
+
+			"andi.b #$f, d1 ; take the copy of input in d1, and throw away everything but RLDU",
+			"add.b d0, d1 ; d1 is now CBRLDU, which is the positive angle we want, up to 63",
+
+			"cmpi.b #60, D1 ; compare D1 to 60",
+			"ble.s skipUpperClamp60 ; is it less than 61? no need to apply upper clamp",
+			"move.b #60, D1 ; it is too big, clamp it down to 60",
+			"skipUpperClamp60:",
+
+			";;;; at this point D1 is (0,60), ie positive angles, and d2 is the original input",
+			"btst #7, D2 ; see if D was set",
+			"beq skipNegation; not set, no need to negate",
+			"muls #-1,d1 ; negation asked for, multiply angle by -1",
+			"skipNegation:",
+
+			";;; from here on out is specific stuff for difficulty select",
+			"addi.b #60, D1 ; map D1 from (-60,60) -> (0,120)",
+
+			"andi.l #$000000ff, d1 ; wipe out D1 above the byte, forcing the byte to become positive",
+			"divu.w #30, D1 ; divide d1 by 30, accomplishing (0,3) how many difficulty choices there are",
+
+			"move.b D1, D5 ; store the pending difficulty that we just determined where the game expects it",
+			";;; the game will take this value and run with it, enabling rotary controls on high score name input",
+			"bra done",
+
+			";;; joystick code is identical to what the game originally had",
+			";;; except using BIOS_PXCHANGE in d3",
+			"handleJoystick:",
+			"btst #$0, D3 ; is up pressed?",
+			"bne handleUp ; yes? go set based on up",
+			"btst #$1, D3 ; is down pressed?",
+			"bne handleDown ; yes ? go set based on down",
+			"bra ensure3 ; nothing is pressed? jump out of here",
+			"handleUp:",
+			"subq.w  #1, D5 ; move difficulty up one (visually)",
+			"bra ensure3 ; skip down handling",
+			"handleDown:",
+			"addq.w  #1, D5 ; move difficulty down one (visually)",
+			"ensure3:",
+			"andi.w  #$3, D5 ; ensure the difficulty is (0-3)",
+
+			"done:",
+			"move.l $108fc0, d1 ; restore d1",
+			"move.l $108fc8, d2 ; restore d2",
+			"move.b $108fd0, d3 ; restore d3",
+			"move.b $108fca, d0 ; restore current input into d0",
+			"rts"
+		]
+	},
+	{
+		"type": "prom",
+		"description": "clear out left behind junk with nops",
+		"address": "6874",
+		"patchAsm": ["nop", "nop", "nop", "nop", "nop", "nop", "nop", "nop", "nop"]
 	}
 ]

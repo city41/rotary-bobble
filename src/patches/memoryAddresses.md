@@ -42,3 +42,10 @@ When figuring out the rotary angle delta, we also write this fake input to these
 ## high score input related
 
 108fa0:1 -- the throttle value for when in joystick mode
+
+## difficulty select related
+
+108fc0:8 -- storage for D1
+108fc8:8 -- storage for D2
+108fd0:8 -- storage for D3
+108fca:1 -- the real input that we mangle, so need to restore
