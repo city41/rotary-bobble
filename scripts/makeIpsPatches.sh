@@ -24,3 +24,5 @@ CROM6='d96-03.c6'
 yarn ts-node src/tools/makeIpsPatch.ts ipsBinaries/original/$PROM ipsBinaries/hacked/$PROM ipsPatches/pbobblen.$PROM.ips
 yarn ts-node src/tools/makeIpsPatch.ts ipsBinaries/original/$CROM5 ipsBinaries/hacked/$CROM5 ipsPatches/pbobblen.$CROM5.ips
 yarn ts-node src/tools/makeIpsPatch.ts ipsBinaries/original/$CROM6 ipsBinaries/hacked/$CROM6 ipsPatches/pbobblen.$CROM6.ips
+
+zip ipsPatches/rotaryBobbleIpsPatches.zip ipsPatches/*.ips
