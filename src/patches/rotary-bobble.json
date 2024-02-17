@@ -32,6 +32,40 @@
 	},
 	{
 		"type": "prom",
+		"description": "Genral input to rotary routine",
+		"symbol": "INPUT_TO_ROTARY_ROUTINE",
+		"patchAsm": [
+			";;; uses d0, d1, d2",
+			";;; input: BIOS_P(X)CURRENT in d0",
+			";;; output: rotary angle in d1, (-60,60)",
+
+			";;;; rotary controls",
+			"move.b d0, d1 ; copy input into d1",
+			"move.b d0, d2 ; copy input into d2",
+
+			";;;; get rid of D, place BC in the right spot",
+			"andi.b #$7f, d0 ; turn the D bit off, it is for sign and we are only calc'ing a positive angle right now",
+			"lsr.b #5, d0 ; shift it down by 5 to get BC all by itself",
+			"lsl.b #4, d0 ; then shift BC back up into the higher nibble, to make room for RLDU",
+
+			"andi.b #$f, d1 ; take the copy of input in d1, and throw away everything but RLDU",
+			"add.b d0, d1 ; d1 is now CBRLDU, which is the positive angle we want, up to 63",
+
+			"cmpi.b #60, D1 ; compare D1 to 60",
+			"ble.s skipUpperClamp60 ; is it less than 61? no need to apply upper clamp",
+			"move.b #60, D1 ; it is too big, clamp it down to 60",
+			"skipUpperClamp60:",
+
+			";;;; at this point D1 is (0,60), ie positive angles, and d2 is the original input",
+			"btst #7, D2 ; see if D was set",
+			"beq skipNegation; not set, no need to negate",
+			"muls #-1,d1 ; negation asked for, multiply angle by -1",
+			"skipNegation:",
+			"rts"
+		]
+	},
+	{
+		"type": "prom",
 		"description": "general string to fix layer routine",
 		"subroutine": true,
 		"symbol": "STR_TO_FIX_ROUTINE",
@@ -158,28 +192,7 @@
 			"cmpi.b #1, d3 ; are we in joystick mode?",
 			"beq done ; if so, don't do anything",
 
-			"move.b d0, d1 ; copy input into d1",
-			"move.b d0, d2 ; copy input into d2",
-
-			";;;; get rid of D, place BC in the right spot",
-			"andi.b #$7f, d0 ; turn the D bit off, it is for sign and we are only calc'ing a positive angle right now",
-			"lsr.b #5, d0 ; shift it down by 5 to get BC all by itself",
-			"lsl.b #4, d0 ; then shift BC back up into the higher nibble, to make room for RLDU",
-
-			"andi.b #$f, d1 ; take the copy of input in d1, and throw away everything but RLDU",
-			"add.b d0, d1 ; d1 is now CBRLDU, which is the positive angle we want, up to 63",
-
-			"cmpi.b #60, D1 ; compare D1 to 60",
-			"ble.s skipUpperClamp ; is it less than 61? no need to apply upper clamp",
-			"move.b #60, D1 ; it is too big, clamp it down to 60",
-			"skipUpperClamp:",
-
-			"; at this point D1 is (0,60), ie positive angles, and d2 is the original input",
-			"; if D was set, that means we want to negate the angle to (-60,0)",
-			"btst #7, D2 ; see if D was set",
-			"beq skipNegation; not set, no need to negate",
-			"muls.w #-1,d1 ; negation asked for, multiply angle by -1",
-			"skipNegation:",
+			"jsr $INPUT_TO_ROTARY_ROUTINE",
 
 			";;;; at this point, d1.b is the current rotary angle",
 			"move.w d1, d2 ; save d1 into d2",
@@ -359,27 +372,7 @@
 			"bne handleJoystick",
 
 			";;;; rotary controls",
-			"move.b d0, d1 ; copy input into d1",
-			"move.b d0, d2 ; copy input into d2",
-
-			";;;; get rid of D, place BC in the right spot",
-			"andi.b #$7f, d0 ; turn the D bit off, it is for sign and we are only calc'ing a positive angle right now",
-			"lsr.b #5, d0 ; shift it down by 5 to get BC all by itself",
-			"lsl.b #4, d0 ; then shift BC back up into the higher nibble, to make room for RLDU",
-
-			"andi.b #$f, d1 ; take the copy of input in d1, and throw away everything but RLDU",
-			"add.b d0, d1 ; d1 is now CBRLDU, which is the positive angle we want, up to 63",
-
-			"cmpi.b #60, D1 ; compare D1 to 60",
-			"ble.s skipUpperClamp60 ; is it less than 61? no need to apply upper clamp",
-			"move.b #60, D1 ; it is too big, clamp it down to 60",
-			"skipUpperClamp60:",
-
-			";;;; at this point D1 is (0,60), ie positive angles, and d2 is the original input",
-			"btst #7, D2 ; see if D was set",
-			"beq skipNegation; not set, no need to negate",
-			"muls #-1,d1 ; negation asked for, multiply angle by -1",
-			"skipNegation:",
+			"jsr $INPUT_TO_ROTARY_ROUTINE",
 
 			"addi.b #60, D1 ; map D1 from (-60,60) -> (0,120)",
 			"cmpi.b #119, D1 ; compare D1 to 119, as 120 is one too big because 120/3 = 40, one above the max",
@@ -599,29 +592,7 @@
 			"bne handleJoystick",
 
 			";;;; rotary controls",
-			";;;; this is pretty much an exact copy of the rotary decoding in the main gameplay input routines",
-			"move.b d0, d1 ; copy input into d1",
-			"move.b d0, d2 ; copy input into d2",
-			"move.b d0, $108fca ; store the input off so we can restore it",
-
-			";;;; get rid of D, place BC in the right spot",
-			"andi.b #$7f, d0 ; turn the D bit off, it is for sign and we are only calc'ing a positive angle right now",
-			"lsr.b #5, d0 ; shift it down by 5 to get BC all by itself",
-			"lsl.b #4, d0 ; then shift BC back up into the higher nibble, to make room for RLDU",
-
-			"andi.b #$f, d1 ; take the copy of input in d1, and throw away everything but RLDU",
-			"add.b d0, d1 ; d1 is now CBRLDU, which is the positive angle we want, up to 63",
-
-			"cmpi.b #60, D1 ; compare D1 to 60",
-			"ble.s skipUpperClamp60 ; is it less than 61? no need to apply upper clamp",
-			"move.b #60, D1 ; it is too big, clamp it down to 60",
-			"skipUpperClamp60:",
-
-			";;;; at this point D1 is (0,60), ie positive angles, and d2 is the original input",
-			"btst #7, D2 ; see if D was set",
-			"beq skipNegation; not set, no need to negate",
-			"muls #-1,d1 ; negation asked for, multiply angle by -1",
-			"skipNegation:",
+			"jsr $INPUT_TO_ROTARY_ROUTINE",
 
 			";;; from here on out is specific stuff for difficulty select",
 			"addi.b #60, D1 ; map D1 from (-60,60) -> (0,120)",
