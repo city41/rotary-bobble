@@ -2,10 +2,14 @@ export type PatchDescription = {
 	patchDescription: string;
 };
 
-export type CromPatch = {
-	type: 'crom';
+export type BasePatch = {
+	type: 'crom' | 'prom';
 	description?: string;
 	skip?: boolean;
+};
+
+export type CromPatch = BasePatch & {
+	type: 'crom';
 	imgFile: string;
 	paletteFile: string;
 	destStartingIndex: string;
@@ -16,16 +20,9 @@ export type CromBuffer = {
 	data: number[];
 };
 
-export type BasePromPatch = {
+export type BasePromPatch = BasePatch & {
 	type: 'prom';
-	description?: string;
-	skip?: boolean;
-};
-
-export type PatternPromPatch = BasePromPatch & {
-	pattern: string;
-	subroutine?: boolean;
-	patchAsm: string[];
+	symbol?: string;
 };
 
 export type AddressPromPatch = BasePromPatch & {
@@ -39,10 +36,6 @@ export type StringPromPatch = BasePromPatch & {
 	value: string;
 };
 
-export type Patch =
-	| PatternPromPatch
-	| AddressPromPatch
-	| StringPromPatch
-	| CromPatch;
+export type Patch = AddressPromPatch | StringPromPatch | CromPatch;
 
 export type PatchJSON = Patch[];

@@ -2,22 +2,12 @@ import path from 'node:path';
 import fsp from 'node:fs/promises';
 import mkdirp from 'mkdirp';
 import { execSync } from 'node:child_process';
-import { AddressPromPatch, Patch, PatternPromPatch } from './types';
+import { AddressPromPatch, Patch } from './types';
 import { asmTmpDir } from './dirs';
 import { isCromPatch, isStringPatch } from './main';
 
 function hexDump(bytes: number[]): string {
 	return bytes.map((b) => b.toString(16)).join(' ');
-}
-
-function areEqual(
-	largeArray: number[],
-	index: number,
-	compareArray: number[]
-): boolean {
-	return compareArray.every((a, i) => {
-		return largeArray[index + i] === a;
-	});
 }
 
 async function assemble(asm: string[]): Promise<number[]> {
@@ -54,39 +44,6 @@ async function replaceAt(
 	const index = parseInt(address, 16);
 	data.splice(index, asmBytes.length, ...asmBytes);
 
-	return data;
-}
-
-async function replaceWithPattern(
-	data: number[],
-	pattern: number[],
-	asm: string[]
-): Promise<number[]> {
-	const toBytes = await assemble(asm);
-
-	console.log('toBytes', hexDump(toBytes));
-
-	if (toBytes.length !== pattern.length) {
-		throw new Error(
-			`replace: removing ${pattern.length} bytes but adding ${toBytes.length}, must be same number of bytes`
-		);
-	}
-
-	let i = 0;
-	let matchCount = 0;
-
-	while (i < data.length) {
-		if (areEqual(data, i, pattern)) {
-			console.log('replace: match found, splicing...');
-			data.splice(i, pattern.length, ...toBytes);
-			i += pattern.length;
-			matchCount += 1;
-		} else {
-			i += 1;
-		}
-	}
-
-	console.log('replace: matched', matchCount, 'times');
 	return data;
 }
 
@@ -158,7 +115,7 @@ async function addStringToProm(
 async function replaceWithSubroutine(
 	data: number[],
 	subroutineInsertEnd: number,
-	patch: AddressPromPatch | PatternPromPatch
+	patch: AddressPromPatch
 ): Promise<{ patchedPromData: number[]; subroutineInsertEnd: number }> {
 	const subroutineBytes = await assemble(patch.patchAsm);
 	console.log(
@@ -179,10 +136,6 @@ async function replaceWithSubroutine(
 	if ('address' in patch && typeof patch.address === 'string') {
 		jsrAsm = await formJsrAsm(6, subroutineStartAddress);
 		jsrAddedData = await replaceAt(data, patch.address, jsrAsm);
-	} else if ('pattern' in patch) {
-		const patternBytes = toBytes(patch.pattern);
-		jsrAsm = await formJsrAsm(patternBytes.length, subroutineStartAddress);
-		jsrAddedData = await replaceWithPattern(data, patternBytes, jsrAsm);
 	} else {
 		console.log(
 			'subroutine has no address for jsr specified, just inserting it into rom'
@@ -210,29 +163,49 @@ async function replaceWithSubroutine(
 
 async function replace(
 	data: number[],
-	patch: AddressPromPatch | PatternPromPatch
+	patch: AddressPromPatch
 ): Promise<number[]> {
 	if ('address' in patch) {
 		if (typeof patch.address !== 'string') {
 			throw new Error('replace: a non subroutine patch requires an address');
 		}
 		return replaceAt(data, patch.address, patch.patchAsm);
-	} else if ('pattern' in patch) {
-		return replaceWithPattern(data, toBytes(patch.pattern), patch.patchAsm);
 	} else {
 		throw new Error(`replace, unexpected patch: ${JSON.stringify(patch)}`);
 	}
 }
 
-function toBytes(b: string): number[] {
-	return b.split(' ').map((v) => parseInt(v, 16));
+function applySymbolsToLine(
+	symbolTable: Record<string, number>,
+	line: string
+): string {
+	return Object.entries(symbolTable).reduce((l, e) => {
+		return l.replace(e[0], e[1].toString(16));
+	}, line);
+}
+
+function applySymbols(
+	symbolTable: Record<string, number>,
+	patch: AddressPromPatch
+): AddressPromPatch {
+	return {
+		...patch,
+		patchAsm: patch.patchAsm.map((line) =>
+			applySymbolsToLine(symbolTable, line)
+		),
+	};
 }
 
 async function doPromPatch(
+	symbolTable: Record<string, number>,
 	promData: number[],
 	subroutineInsertEnd: number,
 	patch: Patch
-): Promise<{ patchedPromData: number[]; subroutineInsertEnd: number }> {
+): Promise<{
+	patchedPromData: number[];
+	subroutineInsertEnd: number;
+	symbolTable: Record<string, number>;
+}> {
 	if (isCromPatch(patch)) {
 		throw new Error('doPromPatch: given a crom patch');
 	}
@@ -240,16 +213,29 @@ async function doPromPatch(
 	console.log('applying patch');
 	console.log(patch.description ?? '(patch has no description)');
 
+	let result: { patchedPromData: number[]; subroutineInsertEnd: number };
+
 	if (isStringPatch(patch)) {
-		return addStringToProm(promData, subroutineInsertEnd, patch.value);
+		result = await addStringToProm(promData, subroutineInsertEnd, patch.value);
 	} else if (patch.subroutine) {
-		return replaceWithSubroutine(promData, subroutineInsertEnd, patch);
+		patch = applySymbols(symbolTable, patch);
+		result = await replaceWithSubroutine(promData, subroutineInsertEnd, patch);
 	} else {
-		return {
+		patch = applySymbols(symbolTable, patch);
+		result = {
 			patchedPromData: await replace(promData, patch),
 			subroutineInsertEnd,
 		};
 	}
+
+	if (patch.symbol) {
+		symbolTable = {
+			...symbolTable,
+			[patch.symbol]: result.subroutineInsertEnd,
+		};
+	}
+
+	return { ...result, symbolTable };
 }
 
 export { doPromPatch };

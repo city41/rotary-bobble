@@ -10,7 +10,6 @@ import {
 	Patch,
 	PatchDescription,
 	PatchJSON,
-	PatternPromPatch,
 	StringPromPatch,
 } from './types';
 import { doPromPatch } from './doPromPatch';
@@ -79,20 +78,6 @@ function isStringPatch(obj: unknown): obj is StringPromPatch {
 	return p.string === true && typeof p.value === 'string';
 }
 
-function isPatternPatch(obj: unknown): obj is PatternPromPatch {
-	if (!obj) {
-		return false;
-	}
-
-	if (typeof obj !== 'object') {
-		return false;
-	}
-
-	const p = obj as PatternPromPatch;
-
-	return typeof p.pattern === 'string' && Array.isArray(p.patchAsm);
-}
-
 function isAddressPatch(obj: unknown): obj is AddressPromPatch {
 	if (!obj) {
 		return false;
@@ -104,7 +89,7 @@ function isAddressPatch(obj: unknown): obj is AddressPromPatch {
 
 	const p = obj as AddressPromPatch;
 
-	return Array.isArray(p.patchAsm) && !isPatternPatch(obj);
+	return Array.isArray(p.patchAsm);
 }
 
 function isCromPatch(obj: unknown): obj is CromPatch {
@@ -136,9 +121,7 @@ function isPatch(obj: unknown): obj is Patch {
 
 	const p = obj as Patch;
 
-	return (
-		isStringPatch(p) || isPatternPatch(p) || isAddressPatch(p) || isCromPatch(p)
-	);
+	return isStringPatch(p) || isAddressPatch(p) || isCromPatch(p);
 }
 
 function isPatchJSON(obj: unknown): obj is PatchJSON {
@@ -207,6 +190,8 @@ async function main(patchJsonPaths: string[]) {
 
 	let patchedPromData = [...promData];
 
+	let symbolTable: Record<string, number> = {};
+
 	let cromBuffers = [
 		await getCrom(path.resolve('./pbobblen.zip'), '068-c1.c1'),
 		await getCrom(path.resolve('./pbobblen.zip'), '068-c2.c2'),
@@ -248,12 +233,14 @@ async function main(patchJsonPaths: string[]) {
 
 			if (patch.type === 'prom') {
 				const result = await doPromPatch(
+					symbolTable,
 					patchedPromData,
 					subroutineInsertEnd,
 					patch
 				);
 				patchedPromData = result.patchedPromData;
 				subroutineInsertEnd = result.subroutineInsertEnd;
+				symbolTable = result.symbolTable;
 			} else if (patch.type === 'crom') {
 				try {
 					console.log(patch.description);

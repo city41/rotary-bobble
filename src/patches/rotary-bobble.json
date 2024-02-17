@@ -4,8 +4,37 @@
 	},
 	{
 		"type": "prom",
+		"description": "rotary version string",
+		"string": true,
+		"value": "Rotary v1.0.1a",
+		"symbol": "VERSION_STR"
+	},
+	{
+		"type": "prom",
+		"description": "p1: just toggled joystick off string",
+		"string": true,
+		"value": "Rotary  ",
+		"symbol": "P1_JOY_OFF_STR"
+	},
+	{
+		"type": "prom",
+		"description": "p2: just toggled joystick off string",
+		"string": true,
+		"value": "  Rotary",
+		"symbol": "P2_JOY_OFF_STR"
+	},
+	{
+		"type": "prom",
+		"description": "just toggled joystick on string",
+		"string": true,
+		"value": "Joystick",
+		"symbol": "JOY_ON_STR"
+	},
+	{
+		"type": "prom",
 		"description": "general string to fix layer routine",
 		"subroutine": true,
+		"symbol": "STR_TO_FIX_ROUTINE",
 		"patchAsm": [
 			";;; this routine is called with A6 set to a base address with the following data",
 			";;; [w:fix layer location][l: string pointer][w:countdown]",
@@ -58,13 +87,13 @@
 			"move.l D7, $108dca",
 
 			"lea $108dd2, A6 ; load the version string base address",
-			"jsr $7ffaa; jump to the general string routine",
+			"jsr $STR_TO_FIX_ROUTINE; jump to the general string routine",
 
 			"lea $108dda, A6 ; load the p1 control toggle string",
-			"jsr $7ffaa; jump to the general string routine",
+			"jsr $STR_TO_FIX_ROUTINE; jump to the general string routine",
 
 			"lea $108eda, A6 ; load the p2 control toggle string",
-			"jsr $7ffaa; jump to the general string routine",
+			"jsr $STR_TO_FIX_ROUTINE; jump to the general string routine",
 
 			";;;; game needs A6, so restore it",
 			"move.l $108dce, D7",
@@ -87,7 +116,7 @@
 			";;; set up the version string values for the general string routine",
 			";;; [w:fix layer location][l: string pointer][w:countdown]",
 			"move.w #$7322, $108dd2 ; set up the version string's fix write location",
-			"move.l #$7fc8e, $108dd4 ; set up the pointer to the version string",
+			"move.l #$VERSION_STR, $108dd4 ; set up the pointer to the version string",
 			"move.w #300, $108dd8 ; set its countdown",
 			"rts"
 		]
@@ -212,10 +241,10 @@
 			"move.w #$7058, $108dda ; set the fix layer write location",
 			"cmpi.b #0, d2 ; see what string we need to load based on the toggle ",
 			"beq loadJoyOffString",
-			"move.l #$7fc70, $108ddc ; set the string pointer to joy on",
+			"move.l #$JOY_ON_STR, $108ddc ; set the string pointer to joy on",
 			"bra movePastStringPointer",
 			"loadJoyOffString:",
-			"move.l #$7fc84, $108ddc ; set the string pointer to p1 joy off",
+			"move.l #$P1_JOY_OFF_STR, $108ddc ; set the string pointer to p1 joy off",
 			"movePastStringPointer:",
 			"move.w #100, $108de0 ; set the countdown to 100",
 			"bra saveCounter ; purposely dont clear the counter. only clear via let go of start",
@@ -269,10 +298,10 @@
 			"move.w #$73d8, $108eda ; set the fix layer write location",
 			"cmpi.b #0, d2 ; see what string we need to load based on the toggle ",
 			"beq loadJoyOffString",
-			"move.l #$7fc70, $108edc ; set the string pointer to joy on",
+			"move.l #$JOY_ON_STR, $108edc ; set the string pointer to joy on",
 			"bra movePastStringPointer",
 			"loadJoyOffString:",
-			"move.l #$7fc7a, $108edc ; set the string pointer to p2 joy off",
+			"move.l #$P2_JOY_OFF_STR, $108edc ; set the string pointer to p2 joy off",
 			"movePastStringPointer:",
 			"move.w #100, $108ee0 ; set the countdown to 100",
 			"bra saveCounter ; purposely dont clear the counter. only clear via let go of start",
@@ -540,30 +569,6 @@
 			"dc.w $9c25",
 			"dc.w $0000"
 		]
-	},
-	{
-		"type": "prom",
-		"description": "rotary version string",
-		"string": true,
-		"value": "Rotary v1.0.1a"
-	},
-	{
-		"type": "prom",
-		"description": "p1: just toggled joystick off string",
-		"string": true,
-		"value": "Rotary  "
-	},
-	{
-		"type": "prom",
-		"description": "p2: just toggled joystick off string",
-		"string": true,
-		"value": "  Rotary"
-	},
-	{
-		"type": "prom",
-		"description": "just toggled joystick on string",
-		"string": true,
-		"value": "Joystick"
 	},
 	{
 		"type": "prom",
