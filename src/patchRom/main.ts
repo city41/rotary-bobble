@@ -231,18 +231,18 @@ async function main(patchJsonPaths: string[]) {
 				continue;
 			}
 
-			if (patch.type === 'prom') {
-				const result = await doPromPatch(
-					symbolTable,
-					patchedPromData,
-					subroutineInsertEnd,
-					patch
-				);
-				patchedPromData = result.patchedPromData;
-				subroutineInsertEnd = result.subroutineInsertEnd;
-				symbolTable = result.symbolTable;
-			} else if (patch.type === 'crom') {
-				try {
+			try {
+				if (patch.type === 'prom') {
+					const result = await doPromPatch(
+						symbolTable,
+						patchedPromData,
+						subroutineInsertEnd,
+						patch
+					);
+					patchedPromData = result.patchedPromData;
+					subroutineInsertEnd = result.subroutineInsertEnd;
+					symbolTable = result.symbolTable;
+				} else if (patch.type === 'crom') {
 					console.log(patch.description);
 					console.log('creating crom bytes for', patch.imgFile);
 					const { oddCromBytes, evenCromBytes } = createCromBytes(
@@ -269,11 +269,12 @@ async function main(patchJsonPaths: string[]) {
 					);
 
 					console.log('\n\n');
-				} catch (e) {
-					console.error(e);
+				} else {
+					throw new Error('unknown patch type: ' + patch.type);
 				}
-			} else {
-				throw new Error('unknown patch type: ' + patch.type);
+			} catch (e) {
+				console.error(e);
+				process.exit(1);
 			}
 
 			console.log('\n\n');

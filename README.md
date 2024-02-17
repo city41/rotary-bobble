@@ -31,7 +31,7 @@ For more info, check the `src/pico` and `src/arduino` folders.
 
 ## IPS Patches
 
-IPS patches are available in the `ipsPatches` directory. To patch a ROM
+IPS patches are available in [releases](https://github.com/city41/rotary-bobble/releases)
 
 1. unzip pbobblen.zip
 2. patch `d96-02.c5` with `pbobblen.d96-02.c5.ips` using an IPS patcher

@@ -221,6 +221,11 @@ async function doPromPatch(
 		patch = applySymbols(symbolTable, patch);
 		result = await replaceWithSubroutine(promData, subroutineInsertEnd, patch);
 	} else {
+		if (!patch.address) {
+			throw new Error(
+				'a prom patch that isnt a subroutine must have an address'
+			);
+		}
 		patch = applySymbols(symbolTable, patch);
 		result = {
 			patchedPromData: await replace(promData, patch),

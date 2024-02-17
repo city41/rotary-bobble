@@ -6,7 +6,7 @@
 		"type": "prom",
 		"description": "rotary version string",
 		"string": true,
-		"value": "Rotary v1.0.1a",
+		"value": "Rotary v1.0.2",
 		"symbol": "VERSION_STR"
 	},
 	{
@@ -32,8 +32,9 @@
 	},
 	{
 		"type": "prom",
-		"description": "Genral input to rotary routine",
+		"description": "General input to rotary routine",
 		"symbol": "INPUT_TO_ROTARY_ROUTINE",
+		"subroutine": true,
 		"patchAsm": [
 			";;; uses d0, d1, d2",
 			";;; input: BIOS_P(X)CURRENT in d0",
@@ -596,6 +597,10 @@
 
 			";;; from here on out is specific stuff for difficulty select",
 			"addi.b #60, D1 ; map D1 from (-60,60) -> (0,120)",
+			"cmpi.b #119, D1 ; compare D1 to 119, as 120 is one too big because 120/30 = 4, one above the max",
+			"ble.s skipUpperClamp119 ; is it less than 120? no need to apply upper clamp",
+			"move.b #119, D1 ; it is too big, clamp it down to 119",
+			"skipUpperClamp119:",
 
 			"andi.l #$000000ff, d1 ; wipe out D1 above the byte, forcing the byte to become positive",
 			"divu.w #30, D1 ; divide d1 by 30, accomplishing (0,3) how many difficulty choices there are",
@@ -633,5 +638,92 @@
 		"description": "clear out left behind junk with nops",
 		"address": "6874",
 		"patchAsm": ["nop", "nop", "nop", "nop", "nop", "nop", "nop", "nop", "nop"]
+	},
+	{
+		"type": "prom",
+		"description": "num player select using rotary",
+		"address": "69FE",
+		"subroutine": true,
+		"patchAsm": [
+			"clr.l d1",
+			"move.b $10fdb6, d0; load BIOS_PLAYER_MOD1 to see if p1 is playing",
+			"beq loadP2current ; zero? then p2 is playing",
+			"move.b $10fd96, d0 ; load BIOS_P1CURRENT",
+			"move.b $108e02, d2 ; load the p1 input type toggle. 0 = rotary, 1 = joystick",
+			"bra doneLoadCurrent",
+			"loadP2current:",
+			"move.b $10fd9c, d0 ; load BIOS_P2CURRENT",
+			"move.b $108f02, d2 ; load the p2 input type toggle. 0 = rotary, 1 = joystick",
+			"doneLoadCurrent:",
+
+			"cmpi.b #0, d2 ; is the player currently using rotary?",
+			"bne handleJoystick",
+
+			";;;; rotary controls",
+			"jsr $INPUT_TO_ROTARY_ROUTINE",
+
+			"addi.b #60, D1 ; map D1 from (-60,60) -> (0,120)",
+			"cmpi.b #119, D1 ; compare D1 to 119, as 120 is one too big because 120/60 = 2, one above the max",
+			"ble.s skipUpperClamp119 ; is it less than 120? no need to apply upper clamp",
+			"move.b #119, D1 ; it is too big, clamp it down to 119",
+			"skipUpperClamp119:",
+
+			"andi.l #$000000ff, d1 ; wipe out D1 above the byte, forcing the byte to become positive",
+			"divu.w #60, D1 ; set d1 to (0,1)",
+			"beq handleUp ; is it zero? jump to handleUp",
+			"bra handleDown ; else jump to handleDown",
+
+			";;; identical to the original code",
+			"handleJoystick:",
+			"move.b  -$5da4(A5), D0",
+			"and.b   -$5da3(A5), D0",
+			"btst    #$0, D0",
+			"beq     handleUp",
+			"btst    #$1, D0",
+			"beq     handleDown",
+			"bra     done",
+			"handleUp:",
+			"move.w  #$48, D5",
+			"move.w  #$40, D6",
+			"move.w  #$1, -$5d94(A5)",
+			"bra     done",
+			"handleDown:",
+			"move.w  #$98, D5",
+			"move.w  #$90, D6",
+			"move.w  #$3, -$5d94(A5)",
+
+			"done:",
+			"rts"
+		]
+	},
+	{
+		"type": "prom",
+		"description": "clean out the junk left behind",
+		"address": "6A04",
+		"patchAsm": [
+			"nop",
+			"nop",
+			"nop",
+			"nop",
+			"nop",
+			"nop",
+			"nop",
+			"nop",
+			"nop",
+			"nop",
+			"nop",
+			"nop",
+			"nop",
+			"nop",
+			"nop",
+			"nop",
+			"nop",
+			"nop",
+			"nop",
+			"nop",
+			"nop",
+			"nop",
+			"nop"
+		]
 	}
 ]
