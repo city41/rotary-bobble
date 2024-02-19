@@ -63,44 +63,52 @@
 		}
 
 		.heading-container {
-			height: 80px;
-			background-color: var(--pbblue-dark);
-			background-image: url(./images/h2Left.png),
+			height: 100px;
+			background-image: url(./images/h2Left.png), url(./images/h2Right.png),
 				linear-gradient(
 					to bottom,
 					transparent,
-					transparent 10px,
-					var(--pbgrey) 10px,
+					transparent 20px,
 					var(--pbgrey) 20px,
+					var(--pbgrey) 30px,
+					var(--pbblue-dark) 30px,
+					var(--pbblue-dark) 70px,
+					var(--pbgrey) 70px,
+					var(--pbgrey) 80px,
+					transparent 80px,
+					transparent
+				),
+				linear-gradient(
+					to right,
+					var(--pbblue-dark),
+					var(--pbblue-dark) 20px,
 					transparent 20px,
 					transparent
 				),
 				linear-gradient(
-					to top,
-					transparent,
-					transparent 10px,
-					var(--pbgrey) 10px,
-					var(--pbgrey) 20px,
+					to left,
+					var(--pbblue-dark),
+					var(--pbblue-dark) 20px,
 					transparent 20px,
 					transparent
-				),
-				url(./images/h2Right.png);
+				);
 			background-repeat: no-repeat;
-			background-size: 80px calc(100% - 20px), calc(100% - 160px) 100%,
-				calc(100% - 160px) 100%, 80px calc(100% - 20px);
-			background-position: left, top, bottom, right;
+			background-size: 80px calc(100% - 40px), 80px calc(100% - 40px),
+				calc(100% - 160px) 100%, 100% calc(100% - 20px), 100% calc(100% - 20px);
+			background-position: left, right, top, left, right;
 			image-rendering: crisp-edges;
 			image-rendering: pixelated;
 			z-index: 0;
-			margin: 0 -32px;
 
 			display: grid;
 			place-items: center;
+
+			margin: 4rem -2rem;
 		}
 	</style>
 	<body>
 		<div
-			class="page-container mx-auto max-w-4xl bg-pbblue text-white px-8 pb-4 sm:my-16 shadow-xl"
+			class="page-container mx-auto w-full lg:max-w-4xl bg-pbblue text-white px-8 pb-4 sm:my-16 lg:shadow-2xl"
 		>
 			<ul
 				class="-mx-4 pb-2 pt-4 px-16 flex flex-row place-content-between border-b border-pbblue-dark"
@@ -117,6 +125,20 @@
 					<div class="flex flex-col h-full mt-16">
 						<img src="images/title.png" alt="rotary bobble title" />
 						<p>Puzzle Bobble, but with rotary controls</p>
+						<div
+							class="flex flex-col space-y-8 my-8 border-t-2 border-pbblue pt-8"
+						>
+							<p>
+								Rotary Bobble is a ROM hack for the Neo Geo game Puzzle Bobble.
+								It replaces the joystick controls with a rotary dial. A custom
+								controller is used to send angle values to the game as the dial
+								turns.
+							</p>
+							<p>
+								I always felt this is how the game should have been made. The
+								rotary controls are much more accurate and more fun to use.
+							</p>
+						</div>
 						<div class="flex-1"></div>
 					</div>
 				</div>
@@ -128,19 +150,6 @@
 						Your browser does not support the video tag.
 					</video>
 				</div>
-			</div>
-			<div
-				class="flex flex-col space-y-8 mx-auto max-w-2xl my-8 border-t-2 border-pbblue pt-8"
-			>
-				<p>
-					Rotary Bobble is a ROM hack for the Neo Geo game Puzzle Bobble. It
-					replaces the joystick controls with a rotary dial. A custom controller
-					is used to send angle values to the game as the dial turns.
-				</p>
-				<p>
-					I always felt this is how the game should have been made. The rotary
-					controls are much more accurate and more fun to use.
-				</p>
 			</div>
 			<div class="heading-container" id="build-the-rom">
 				<h2 class="heading text-xl font-bold py-4">Build the ROM</h2>
@@ -193,18 +202,15 @@
 					<li>Rezip all the files back up into a pbobblen.zip file</li>
 				</ol>
 			</div>
-			<h2 class="text-xl font-bold py-4 px-8 bg-pbblue -mx-4 mt-2">
-				Build the Controller
-			</h2>
+			<div class="heading-container" id="build-the-controller">
+				<h2 class="heading text-xl font-bold py-4">Build the Controller</h2>
+			</div>
 			<div>TODO</div>
-			<h2
-				id="playing-tips"
-				class="text-xl font-bold py-4 px-8 bg-pbblue -mx-4 mt-2"
-			>
-				Playing Tips
-			</h2>
-			<div class="my-4 mx-8 flex flex-col gap-y-8">
-				<div class="flex flex-col sm:flex-row gap-y-4 sm:gap-x-4">
+			<div class="heading-container" id="playing-tips">
+				<h2 class="heading text-xl font-bold py-4">Playing Tips</h2>
+			</div>
+			<div class="my-4 px-8 flex flex-col gap-y-8">
+				<div class="flex flex-col sm:flex-row gap-y-4 sm:gap-x-4 py-8">
 					<p class="sm:w-1/2">
 						Difficulty select, number of player select and high score name entry
 						are all done with rotary controls. It might take a little bit to get
@@ -217,7 +223,9 @@
 						alt="high score entry screen"
 					/>
 				</div>
-				<div class="flex flex-col sm:flex-row gap-y-4 sm:gap-x-4">
+				<div
+					class="flex flex-col sm:flex-row gap-y-4 sm:gap-x-4 bg-pbblue-dark -mx-16 px-16 py-8"
+				>
 					<p class="sm:w-1/2">
 						You can switch to joystick controls by holding start for 1.5
 						seconds. It will show what you just switched to for a moment on the
@@ -230,7 +238,7 @@
 						alt="Indicating whether joystick or rotary is the current control scheme"
 					/>
 				</div>
-				<div class="flex flex-col sm:flex-row gap-y-4 sm:gap-x-4">
+				<div class="flex flex-col sm:flex-row gap-y-4 sm:gap-x-4 py-8">
 					<p class="sm:w-1/2">
 						At the title screen, the version of the hack is shown. Please
 						include this version if reporting a bug. To see this on MVS, don't
@@ -243,12 +251,9 @@
 					/>
 				</div>
 			</div>
-			<h2
-				id="how-it-works"
-				class="text-xl font-bold py-4 px-2 bg-pbblue -mx-4 mt-2"
-			>
-				How it Works
-			</h2>
+			<div class="heading-container" id="how-it-works">
+				<h2 class="heading text-xl font-bold py-4">How it Works</h2>
+			</div>
 		</div>
 	</body>
 </html>
