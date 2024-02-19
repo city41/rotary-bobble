@@ -10,6 +10,7 @@
 					extend: {
 						colors: {
 							pbpurple: '#6565f0',
+							'pbpurple-dark': '#222280',
 						},
 					},
 				},
@@ -23,26 +24,25 @@
 	</style>
 	<body>
 		<div class="mx-auto max-w-4xl mb-16 bg-pbpurple text-white px-4 pb-4">
-			<div
-				class="grid grid-cols-8 gap-8 auto-rows-min px-8 sm:px-0 mt-24 mb-8 sm:mb-24"
-			>
+			<div class="grid grid-cols-8 gap-8 auto-rows-min px-8 sm:px-0 mt-24 mb-8">
 				<div
-					class="col-start-0 col-end-9 h-64 sm:h-auto sm:col-start-1 sm:col-end-5 self-stretch"
-				>
-					<video width="100%" class="mt-4" autoplay loop muted>
-						<source src="video.mp4" type="video/mp4" />
-						Your browser does not support the video tag.
-					</video>
-				</div>
-				<div
-					class="col-start-0 col-end-9 sm:col-start-5 sm:col-end-9 grid place-items-center"
+					class="col-start-1 col-end-9 sm:col-start-1 sm:col-end-5 grid place-items-center"
 				>
 					<div class="flex flex-col">
-						<div>Rotary Bobble</div>
+						<img src="images/title.png" alt="rotary bobble title" />
 						<p>Puzzle Bobble, but with rotary controls</p>
 					</div>
 				</div>
+				<div
+					class="col-start-1 col-end-9 h-64 sm:h-auto sm:col-start-5 sm:col-end-9 self-stretch"
+				>
+					<video width="70%" class="mt-4" autoplay muted controls>
+						<source src="./rotaryCloseup.mp4" type="video/mp4" />
+						Your browser does not support the video tag.
+					</video>
+				</div>
 			</div>
+			<div class="-mx-4 h-8 bg-pbpurple-dark"></div>
 			<div class="flex flex-col space-y-8 mx-auto max-w-2xl my-8">
 				<p>
 					Rotary Bobble is a ROM hack for the Neo Geo game Puzzle Bobble. It
@@ -54,20 +54,25 @@
 					controls are much more accurate and more fun to use.
 				</p>
 			</div>
-			<ul class="flex flex-row place-content-between p-4 bg-red-200">
+			<ul
+				class="-mx-4 pt-8 pb-4 px-16 flex flex-row place-content-between bg-pbpurple-dark"
+			>
 				<li>Build the ROM</li>
 				<li>Build the Controller</li>
 				<li><a href="#playing-tips">Playing Tips</a></li>
 			</ul>
+			<h2 class="text-xl font-bold py-4 px-2 bg-pbpurple-dark -mx-4 mt-2">
+				Build the ROM
+			</h2>
 			<div>
-				<h2 class="text-xl font-bold">Build the ROM</h2>
-				<ol class="list-decimal ml-4">
+				<ol class="list-decimal ml-8 my-8 flex flex-col gap-y-4">
 					<li>
 						Copy <code>pbobblen.zip</code> from your MAME roms into a directory
 						somewhere
 					</li>
 					<li>
 						Download the latest <code>rotaryBobbleIpsPatches.zip</code> release
+						from
 						<a href="https://github.com/city41/rotary-bobble/releases">here</a>
 						into that directory
 					</li>
@@ -107,13 +112,18 @@
 					<li>Rezip all the files back up into a pbobblen.zip file</li>
 				</ol>
 			</div>
-			<div>
-				<h2 class="text-xl font-bold">Build the Controller</h2>
-				TODO
-			</div>
-			<div>
-				<h2 id="playing-tips" class="text-xl font-bold">Playing Tips</h2>
-				<div class="flex flex-row">
+			<h2 class="text-xl font-bold py-4 px-2 bg-pbpurple-dark -mx-4 mt-2">
+				Build the Controller
+			</h2>
+			<div>TODO</div>
+			<h2
+				id="playing-tips"
+				class="text-xl font-bold py-4 px-2 bg-pbpurple-dark -mx-4 mt-2"
+			>
+				Playing Tips
+			</h2>
+			<div class="my-4 mx-8 flex flex-col gap-y-8">
+				<div class="flex flex-row gap-x-4">
 					<p class="w-1/2">
 						Difficulty select, number of player select and high score name entry
 						are all done with rotary controls. It might take a little bit to get
@@ -126,7 +136,7 @@
 						alt="high score entry screen"
 					/>
 				</div>
-				<div class="flex flex-row">
+				<div class="flex flex-row gap-x-4">
 					<p class="w-1/2">
 						You can switch to joystick controls by holding start for 1.5
 						seconds. It will show what you just switched to for a moment on the
@@ -139,11 +149,11 @@
 						alt="Indicating whether joystick or rotary is the current control scheme"
 					/>
 				</div>
-				<div class="flex flex-row">
+				<div class="flex flex-row gap-x-4">
 					<p class="w-1/2">
 						At the title screen, the version of the hack is shown. Please
 						include this version if reporting a bug. To see this on MVS, don't
-						insert a coin during the eyecatcher.
+						insert a coin during the eyecatcher and wait for the title screen.
 					</p>
 					<img
 						class="w-1/2"
