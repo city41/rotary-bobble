@@ -9,8 +9,8 @@
 				theme: {
 					extend: {
 						colors: {
-							pbpurple: '#6565f0',
-							'pbpurple-dark': '#222280',
+							pbblue: 'var(--pbblue)',
+							'pbblue-dark': 'var(--pbblue-dark)',
 						},
 					},
 				},
@@ -18,32 +18,120 @@
 		</script>
 	</head>
 	<style>
+		:root {
+			--pbblue: #2c56a9;
+			--pbblue-dark: #162c6d;
+			--pbgrey: #a0b0d9;
+		}
+
 		body {
 			background-image: url(./images/bg.png);
+			background-size: 40px;
+			image-rendering: crisp-edges;
+			image-rendering: pixelated;
+		}
+
+		.page-container {
+			background-image: linear-gradient(
+					to right,
+					var(--pbblue-dark),
+					var(--pbblue-dark) 10px,
+					transparent 10px,
+					transparent
+				),
+				linear-gradient(
+					to top,
+					var(--pbblue-dark),
+					var(--pbblue-dark) 10px,
+					transparent 10px,
+					transparent
+				),
+				linear-gradient(
+					to bottom,
+					var(--pbblue-dark),
+					var(--pbblue-dark) 10px,
+					transparent 10px,
+					transparent
+				),
+				linear-gradient(
+					to left,
+					var(--pbblue-dark),
+					var(--pbblue-dark) 10px,
+					transparent 10px,
+					transparent
+				);
+		}
+
+		.heading-container {
+			height: 80px;
+			background-color: var(--pbblue-dark);
+			background-image: url(./images/h2Left.png),
+				linear-gradient(
+					to bottom,
+					transparent,
+					transparent 10px,
+					var(--pbgrey) 10px,
+					var(--pbgrey) 20px,
+					transparent 20px,
+					transparent
+				),
+				linear-gradient(
+					to top,
+					transparent,
+					transparent 10px,
+					var(--pbgrey) 10px,
+					var(--pbgrey) 20px,
+					transparent 20px,
+					transparent
+				),
+				url(./images/h2Right.png);
+			background-repeat: no-repeat;
+			background-size: 80px calc(100% - 20px), calc(100% - 160px) 100%,
+				calc(100% - 160px) 100%, 80px calc(100% - 20px);
+			background-position: left, top, bottom, right;
+			image-rendering: crisp-edges;
+			image-rendering: pixelated;
+			z-index: 0;
+			margin: 0 -32px;
+
+			display: grid;
+			place-items: center;
 		}
 	</style>
 	<body>
-		<div class="mx-auto max-w-4xl mb-16 bg-pbpurple text-white px-4 pb-4">
-			<div class="grid grid-cols-8 gap-8 auto-rows-min px-8 sm:px-0 mt-24 mb-8">
+		<div
+			class="page-container mx-auto max-w-4xl bg-pbblue text-white px-8 pb-4 sm:my-16 shadow-xl"
+		>
+			<ul
+				class="-mx-4 pb-2 pt-4 px-16 flex flex-row place-content-between border-b border-pbblue-dark"
+			>
+				<li><a href="#build-the-rom">Build the ROM</a></li>
+				<li><a href="#build-the-controller">Build the Controller</a></li>
+				<li><a href="#playing-tips">Playing Tips</a></li>
+				<li><a href="#how-it-works">How it Works</a></li>
+			</ul>
+			<div class="grid grid-cols-8 gap-8 auto-rows-min px-8 sm:px-0 mb-8">
 				<div
 					class="col-start-1 col-end-9 sm:col-start-1 sm:col-end-5 grid place-items-center"
 				>
-					<div class="flex flex-col">
+					<div class="flex flex-col h-full mt-16">
 						<img src="images/title.png" alt="rotary bobble title" />
 						<p>Puzzle Bobble, but with rotary controls</p>
+						<div class="flex-1"></div>
 					</div>
 				</div>
 				<div
-					class="col-start-1 col-end-9 h-64 sm:h-auto sm:col-start-5 sm:col-end-9 self-stretch"
+					class="col-start-1 col-end-9 sm:h-auto sm:col-start-5 sm:col-end-9 self-stretch"
 				>
-					<video width="70%" class="mt-4" autoplay muted controls>
+					<video class="mt-4 w-full h-full" autoplay muted controls>
 						<source src="./rotaryCloseup.mp4" type="video/mp4" />
 						Your browser does not support the video tag.
 					</video>
 				</div>
 			</div>
-			<div class="-mx-4 h-8 bg-pbpurple-dark"></div>
-			<div class="flex flex-col space-y-8 mx-auto max-w-2xl my-8">
+			<div
+				class="flex flex-col space-y-8 mx-auto max-w-2xl my-8 border-t-2 border-pbblue pt-8"
+			>
 				<p>
 					Rotary Bobble is a ROM hack for the Neo Geo game Puzzle Bobble. It
 					replaces the joystick controls with a rotary dial. A custom controller
@@ -54,16 +142,9 @@
 					controls are much more accurate and more fun to use.
 				</p>
 			</div>
-			<ul
-				class="-mx-4 pt-8 pb-4 px-16 flex flex-row place-content-between bg-pbpurple-dark"
-			>
-				<li>Build the ROM</li>
-				<li>Build the Controller</li>
-				<li><a href="#playing-tips">Playing Tips</a></li>
-			</ul>
-			<h2 class="text-xl font-bold py-4 px-2 bg-pbpurple-dark -mx-4 mt-2">
-				Build the ROM
-			</h2>
+			<div class="heading-container" id="build-the-rom">
+				<h2 class="heading text-xl font-bold py-4">Build the ROM</h2>
+			</div>
 			<div>
 				<ol class="list-decimal ml-8 my-8 flex flex-col gap-y-4">
 					<li>
@@ -112,56 +193,62 @@
 					<li>Rezip all the files back up into a pbobblen.zip file</li>
 				</ol>
 			</div>
-			<h2 class="text-xl font-bold py-4 px-2 bg-pbpurple-dark -mx-4 mt-2">
+			<h2 class="text-xl font-bold py-4 px-8 bg-pbblue -mx-4 mt-2">
 				Build the Controller
 			</h2>
 			<div>TODO</div>
 			<h2
 				id="playing-tips"
-				class="text-xl font-bold py-4 px-2 bg-pbpurple-dark -mx-4 mt-2"
+				class="text-xl font-bold py-4 px-8 bg-pbblue -mx-4 mt-2"
 			>
 				Playing Tips
 			</h2>
 			<div class="my-4 mx-8 flex flex-col gap-y-8">
-				<div class="flex flex-row gap-x-4">
-					<p class="w-1/2">
+				<div class="flex flex-col sm:flex-row gap-y-4 sm:gap-x-4">
+					<p class="sm:w-1/2">
 						Difficulty select, number of player select and high score name entry
 						are all done with rotary controls. It might take a little bit to get
 						used to this. The high score screen's timer was increased to 99 to
 						help a bit.
 					</p>
 					<img
-						class="w-1/2"
+						class="sm:w-1/2"
 						src="images/highScoreEntry.png"
 						alt="high score entry screen"
 					/>
 				</div>
-				<div class="flex flex-row gap-x-4">
-					<p class="w-1/2">
+				<div class="flex flex-col sm:flex-row gap-y-4 sm:gap-x-4">
+					<p class="sm:w-1/2">
 						You can switch to joystick controls by holding start for 1.5
 						seconds. It will show what you just switched to for a moment on the
 						side of the screen. Each player can do this. Useful if you want to
 						play a two player game but only have one rotary controller.
 					</p>
 					<img
-						class="w-1/2"
+						class="sm:w-1/2"
 						src="images/toggleStrings.png"
 						alt="Indicating whether joystick or rotary is the current control scheme"
 					/>
 				</div>
-				<div class="flex flex-row gap-x-4">
-					<p class="w-1/2">
+				<div class="flex flex-col sm:flex-row gap-y-4 sm:gap-x-4">
+					<p class="sm:w-1/2">
 						At the title screen, the version of the hack is shown. Please
 						include this version if reporting a bug. To see this on MVS, don't
 						insert a coin during the eyecatcher and wait for the title screen.
 					</p>
 					<img
-						class="w-1/2"
+						class="sm:w-1/2"
 						src="images/versionString.png"
 						alt="title screen with version displayed"
 					/>
 				</div>
 			</div>
+			<h2
+				id="how-it-works"
+				class="text-xl font-bold py-4 px-2 bg-pbblue -mx-4 mt-2"
+			>
+				How it Works
+			</h2>
 		</div>
 	</body>
 </html>
