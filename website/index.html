@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<script src="https://cdn.tailwindcss.com"></script>
+		<script>
+			tailwind.config = {
+				theme: {
+					extend: {
+						colors: {
+							pbpurple: '#6565f0',
+						},
+					},
+				},
+			};
+		</script>
+	</head>
+	<style>
+		body {
+			background-image: url(./images/bg.png);
+		}
+	</style>
+	<body>
+		<div class="mx-auto max-w-4xl mb-16 bg-pbpurple text-white px-4 pb-4">
+			<div
+				class="grid grid-cols-8 gap-8 auto-rows-min px-8 sm:px-0 mt-24 mb-8 sm:mb-24"
+			>
+				<div
+					class="col-start-0 col-end-9 h-64 sm:h-auto sm:col-start-1 sm:col-end-5 self-stretch"
+				>
+					<video width="100%" class="mt-4" autoplay loop muted>
+						<source src="video.mp4" type="video/mp4" />
+						Your browser does not support the video tag.
+					</video>
+				</div>
+				<div
+					class="col-start-0 col-end-9 sm:col-start-5 sm:col-end-9 grid place-items-center"
+				>
+					<div class="flex flex-col">
+						<div>Rotary Bobble</div>
+						<p>Puzzle Bobble, but with rotary controls</p>
+					</div>
+				</div>
+			</div>
+			<div class="flex flex-col space-y-8 mx-auto max-w-2xl my-8">
+				<p>
+					Rotary Bobble is a ROM hack for the Neo Geo game Puzzle Bobble. It
+					replaces the joystick controls with a rotary dial. A custom controller
+					is used to send angle values to the game as the dial turns.
+				</p>
+				<p>
+					I always felt this is how the game should have been made. The rotary
+					controls are much more accurate and more fun to use.
+				</p>
+			</div>
+			<ul class="flex flex-row place-content-between p-4 bg-red-200">
+				<li>Build the ROM</li>
+				<li>Build the Controller</li>
+				<li><a href="#playing-tips">Playing Tips</a></li>
+			</ul>
+			<div>
+				<h2 class="text-xl font-bold">Build the ROM</h2>
+				<ol class="list-decimal ml-4">
+					<li>
+						Copy <code>pbobblen.zip</code> from your MAME roms into a directory
+						somewhere
+					</li>
+					<li>
+						Download the latest <code>rotaryBobbleIpsPatches.zip</code> release
+						<a href="https://github.com/city41/rotary-bobble/releases">here</a>
+						into that directory
+					</li>
+					<li>Unzip both</li>
+					<li>
+						Verify the three files below have the same sha (or skip this and
+						just try the result and see if it works)
+						<ul>
+							<li>
+								d96-02.c5: <code>69c9ea415773af94ac44c48af05d55ada222b138</code>
+							</li>
+							<li>
+								d96-03.c6: <code>042ae50a528cea21cf07771d3915c57aa16fd5af</code>
+							</li>
+							<li>
+								d96-07.ep1:
+								<code>328429d11de5b327a0654ae0548da4d0025a2ae6</code>
+							</li>
+						</ul>
+					</li>
+					<li>
+						Run an IPS patcher for the three files. If you don't have one, you
+						can use this
+						<a href="https://www.romhacking.net/patch/" target="_blank"
+							>online one</a
+						>.
+						<ul>
+							<li>a</li>
+							<li>a</li>
+							<li>a</li>
+						</ul>
+					</li>
+					<li>
+						Make sure the newly patched files have the same name as the
+						originals
+					</li>
+					<li>Rezip all the files back up into a pbobblen.zip file</li>
+				</ol>
+			</div>
+			<div>
+				<h2 class="text-xl font-bold">Build the Controller</h2>
+				TODO
+			</div>
+			<div>
+				<h2 id="playing-tips" class="text-xl font-bold">Playing Tips</h2>
+				<div class="flex flex-row">
+					<p class="w-1/2">
+						Difficulty select, number of player select and high score name entry
+						are all done with rotary controls. It might take a little bit to get
+						used to this. The high score screen's timer was increased to 99 to
+						help a bit.
+					</p>
+					<img
+						class="w-1/2"
+						src="images/highScoreEntry.png"
+						alt="high score entry screen"
+					/>
+				</div>
+				<div class="flex flex-row">
+					<p class="w-1/2">
+						You can switch to joystick controls by holding start for 1.5
+						seconds. It will show what you just switched to for a moment on the
+						side of the screen. Each player can do this. Useful if you want to
+						play a two player game but only have one rotary controller.
+					</p>
+					<img
+						class="w-1/2"
+						src="images/toggleStrings.png"
+						alt="Indicating whether joystick or rotary is the current control scheme"
+					/>
+				</div>
+				<div class="flex flex-row">
+					<p class="w-1/2">
+						At the title screen, the version of the hack is shown. Please
+						include this version if reporting a bug. To see this on MVS, don't
+						insert a coin during the eyecatcher.
+					</p>
+					<img
+						class="w-1/2"
+						src="images/versionString.png"
+						alt="title screen with version displayed"
+					/>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>
