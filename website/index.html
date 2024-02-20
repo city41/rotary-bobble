@@ -117,14 +117,17 @@
 				<li><a href="#build-the-controller">Build the Controller</a></li>
 				<li><a href="#playing-tips">Playing Tips</a></li>
 				<li><a href="#how-it-works">How it Works</a></li>
+				<li><a href="https://github.com/city41/rotary-bobble">GitHub</a></li>
 			</ul>
 			<div class="grid grid-cols-8 gap-8 auto-rows-min px-8 sm:px-0 mb-8">
 				<div
 					class="col-start-1 col-end-9 sm:col-start-1 sm:col-end-5 grid place-items-center"
 				>
-					<div class="flex flex-col h-full mt-16">
+					<div class="flex flex-col h-full mt-16 gap-y-4">
 						<img src="images/title.png" alt="rotary bobble title" />
-						<p>Puzzle Bobble, but with rotary controls</p>
+						<h1 class="font-bold text-2xl text-center">
+							Puzzle Bobble, but with rotary controls
+						</h1>
 						<div
 							class="flex flex-col space-y-8 my-8 border-t-2 border-pbblue pt-8"
 						>
@@ -155,6 +158,10 @@
 				<h2 class="heading text-xl font-bold py-4">Build the ROM</h2>
 			</div>
 			<div>
+				<p class="bg-yellow-200 p-4 mx-8 text-yellow-900">
+					The game ROM needs to be altered with IPS patches. This will add the
+					rotary control logic to the game.
+				</p>
 				<ol class="list-decimal ml-8 my-8 flex flex-col gap-y-4">
 					<li>
 						Copy <code>pbobblen.zip</code> from your MAME roms into a directory
@@ -201,6 +208,12 @@
 					</li>
 					<li>Rezip all the files back up into a pbobblen.zip file</li>
 				</ol>
+				<p class="bg-yellow-200 p-4 mx-8 text-yellow-900">
+					From here you can load the ROM into a flashcart like the TerraOnion
+					NeoSD or Darksoft's Multi Cartridge, or onto something like the
+					MiSTer. You can play the ROM in an emulator like MAME, but getting a
+					proper controller to work in that environment is more difficult.
+				</p>
 			</div>
 			<div class="heading-container" id="build-the-controller">
 				<h2 class="heading text-xl font-bold py-4">Build the Controller</h2>
