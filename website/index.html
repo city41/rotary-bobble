@@ -3,149 +3,137 @@
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<script src="https://cdn.tailwindcss.com"></script>
-		<script>
-			tailwind.config = {
-				theme: {
-					extend: {
-						colors: {
-							pbblue: 'var(--pbblue)',
-							'pbblue-dark': 'var(--pbblue-dark)',
-						},
-					},
-				},
-			};
-		</script>
+		<style>
+			:root {
+				--pbblue: #2c56a9;
+				--pbblue-dark: #162c6d;
+				--pbgrey: #a0b0d9;
+			}
+
+			body {
+				background-image: url(./images/bg.png);
+				background-size: 40px;
+				image-rendering: crisp-edges;
+				image-rendering: pixelated;
+			}
+
+			.page-container {
+				background-image: linear-gradient(
+						to right,
+						var(--pbblue-dark),
+						var(--pbblue-dark) 10px,
+						transparent 10px,
+						transparent
+					),
+					linear-gradient(
+						to top,
+						var(--pbblue-dark),
+						var(--pbblue-dark) 10px,
+						transparent 10px,
+						transparent
+					),
+					linear-gradient(
+						to bottom,
+						var(--pbblue-dark),
+						var(--pbblue-dark) 10px,
+						transparent 10px,
+						transparent
+					),
+					linear-gradient(
+						to left,
+						var(--pbblue-dark),
+						var(--pbblue-dark) 10px,
+						transparent 10px,
+						transparent
+					);
+			}
+
+			a:hover {
+				background-color: var(--pbblue-dark);
+			}
+
+			a.menu-item {
+				padding: 0.5rem;
+			}
+
+			a:not(.menu-item) {
+				text-decoration: underline;
+			}
+
+			.heading-container {
+				height: 100px;
+				background-image: url(./images/h2Left.png), url(./images/h2Right.png),
+					linear-gradient(
+						to bottom,
+						transparent,
+						transparent 20px,
+						var(--pbgrey) 20px,
+						var(--pbgrey) 30px,
+						var(--pbblue-dark) 30px,
+						var(--pbblue-dark) 70px,
+						var(--pbgrey) 70px,
+						var(--pbgrey) 80px,
+						transparent 80px,
+						transparent
+					),
+					linear-gradient(
+						to right,
+						var(--pbblue-dark),
+						var(--pbblue-dark) 20px,
+						transparent 20px,
+						transparent
+					),
+					linear-gradient(
+						to left,
+						var(--pbblue-dark),
+						var(--pbblue-dark) 20px,
+						transparent 20px,
+						transparent
+					),
+					linear-gradient(
+						to bottom,
+						var(--pbblue),
+						var(--pbblue) 10px,
+						transparent 10px,
+						transparent
+					),
+					linear-gradient(
+						to bottom,
+						var(--pbblue),
+						var(--pbblue) 20px,
+						transparent 20px,
+						transparent
+					);
+				background-repeat: no-repeat;
+				background-size: 80px calc(100% - 40px), 80px calc(100% - 40px),
+					calc(100% - 160px) 100%, 100% calc(100% - 20px),
+					100% calc(100% - 20px), calc(100% - 20px) 100%, calc(100% - 40px) 100%;
+				background-position: left, right, top, left, right, top, top;
+				image-rendering: crisp-edges;
+				image-rendering: pixelated;
+				z-index: 0;
+
+				display: grid;
+				place-items: center;
+
+				margin: 4rem -2rem 2rem -2rem;
+			}
+
+			.sha-table {
+				margin: 2rem -2rem 2rem -2rem;
+				table-layout: fixed;
+				width: calc(100% + 2rem);
+			}
+			.sha-table td {
+				background-color: var(--pbblue-dark);
+				padding: 0.5rem;
+			}
+			.sha-table td code {
+				word-wrap: break-word;
+			}
+		</style>
+		<link rel="stylesheet" href="./tailwind.css" as="style" />
 	</head>
-	<style>
-		:root {
-			--pbblue: #2c56a9;
-			--pbblue-dark: #162c6d;
-			--pbgrey: #a0b0d9;
-		}
-
-		body {
-			background-image: url(./images/bg.png);
-			background-size: 40px;
-			image-rendering: crisp-edges;
-			image-rendering: pixelated;
-		}
-
-		.page-container {
-			background-image: linear-gradient(
-					to right,
-					var(--pbblue-dark),
-					var(--pbblue-dark) 10px,
-					transparent 10px,
-					transparent
-				),
-				linear-gradient(
-					to top,
-					var(--pbblue-dark),
-					var(--pbblue-dark) 10px,
-					transparent 10px,
-					transparent
-				),
-				linear-gradient(
-					to bottom,
-					var(--pbblue-dark),
-					var(--pbblue-dark) 10px,
-					transparent 10px,
-					transparent
-				),
-				linear-gradient(
-					to left,
-					var(--pbblue-dark),
-					var(--pbblue-dark) 10px,
-					transparent 10px,
-					transparent
-				);
-		}
-
-		a:hover {
-			background-color: var(--pbblue-dark);
-		}
-
-		a.menu-item {
-			padding: 0.5rem;
-		}
-
-		a:not(.menu-item) {
-			text-decoration: underline;
-		}
-
-		.heading-container {
-			height: 100px;
-			background-image: url(./images/h2Left.png), url(./images/h2Right.png),
-				linear-gradient(
-					to bottom,
-					transparent,
-					transparent 20px,
-					var(--pbgrey) 20px,
-					var(--pbgrey) 30px,
-					var(--pbblue-dark) 30px,
-					var(--pbblue-dark) 70px,
-					var(--pbgrey) 70px,
-					var(--pbgrey) 80px,
-					transparent 80px,
-					transparent
-				),
-				linear-gradient(
-					to right,
-					var(--pbblue-dark),
-					var(--pbblue-dark) 20px,
-					transparent 20px,
-					transparent
-				),
-				linear-gradient(
-					to left,
-					var(--pbblue-dark),
-					var(--pbblue-dark) 20px,
-					transparent 20px,
-					transparent
-				),
-				linear-gradient(
-					to bottom,
-					var(--pbblue),
-					var(--pbblue) 10px,
-					transparent 10px,
-					transparent
-				),
-				linear-gradient(
-					to bottom,
-					var(--pbblue),
-					var(--pbblue) 20px,
-					transparent 20px,
-					transparent
-				);
-			background-repeat: no-repeat;
-			background-size: 80px calc(100% - 40px), 80px calc(100% - 40px),
-				calc(100% - 160px) 100%, 100% calc(100% - 20px), 100% calc(100% - 20px),
-				calc(100% - 20px) 100%, calc(100% - 40px) 100%;
-			background-position: left, right, top, left, right, top, top;
-			image-rendering: crisp-edges;
-			image-rendering: pixelated;
-			z-index: 0;
-
-			display: grid;
-			place-items: center;
-
-			margin: 4rem -2rem 2rem -2rem;
-		}
-
-		.sha-table {
-			margin: 2rem -2rem 2rem -2rem;
-			table-layout: fixed;
-			width: calc(100% + 2rem);
-		}
-		.sha-table td {
-			background-color: var(--pbblue-dark);
-			padding: 0.5rem;
-		}
-		.sha-table td code {
-			word-wrap: break-word;
-		}
-	</style>
 	<body>
 		<div
 			class="page-container mx-auto w-full lg:max-w-4xl bg-pbblue text-white px-8 pb-4 sm:my-16 lg:shadow-2xl"
