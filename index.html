@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<script src="https://cdn.tailwindcss.com"></script>
+		<script>
+			tailwind.config = {
+				theme: {
+					extend: {
+						colors: {
+							pbblue: 'var(--pbblue)',
+							'pbblue-dark': 'var(--pbblue-dark)',
+						},
+					},
+				},
+			};
+		</script>
+	</head>
+	<style>
+		:root {
+			--pbblue: #2c56a9;
+			--pbblue-dark: #162c6d;
+			--pbgrey: #a0b0d9;
+		}
+
+		body {
+			background-image: url(./images/bg.png);
+			background-size: 40px;
+			image-rendering: crisp-edges;
+			image-rendering: pixelated;
+		}
+
+		.page-container {
+			background-image: linear-gradient(
+					to right,
+					var(--pbblue-dark),
+					var(--pbblue-dark) 10px,
+					transparent 10px,
+					transparent
+				),
+				linear-gradient(
+					to top,
+					var(--pbblue-dark),
+					var(--pbblue-dark) 10px,
+					transparent 10px,
+					transparent
+				),
+				linear-gradient(
+					to bottom,
+					var(--pbblue-dark),
+					var(--pbblue-dark) 10px,
+					transparent 10px,
+					transparent
+				),
+				linear-gradient(
+					to left,
+					var(--pbblue-dark),
+					var(--pbblue-dark) 10px,
+					transparent 10px,
+					transparent
+				);
+		}
+
+		a:hover {
+			background-color: var(--pbblue-dark);
+		}
+
+		a.menu-item {
+			padding: 0.5rem;
+		}
+
+		a:not(.menu-item) {
+			text-decoration: underline;
+		}
+
+		.heading-container {
+			height: 100px;
+			background-image: url(./images/h2Left.png), url(./images/h2Right.png),
+				linear-gradient(
+					to bottom,
+					transparent,
+					transparent 20px,
+					var(--pbgrey) 20px,
+					var(--pbgrey) 30px,
+					var(--pbblue-dark) 30px,
+					var(--pbblue-dark) 70px,
+					var(--pbgrey) 70px,
+					var(--pbgrey) 80px,
+					transparent 80px,
+					transparent
+				),
+				linear-gradient(
+					to right,
+					var(--pbblue-dark),
+					var(--pbblue-dark) 20px,
+					transparent 20px,
+					transparent
+				),
+				linear-gradient(
+					to left,
+					var(--pbblue-dark),
+					var(--pbblue-dark) 20px,
+					transparent 20px,
+					transparent
+				),
+				linear-gradient(
+					to bottom,
+					var(--pbblue),
+					var(--pbblue) 10px,
+					transparent 10px,
+					transparent
+				),
+				linear-gradient(
+					to bottom,
+					var(--pbblue),
+					var(--pbblue) 20px,
+					transparent 20px,
+					transparent
+				);
+			background-repeat: no-repeat;
+			background-size: 80px calc(100% - 40px), 80px calc(100% - 40px),
+				calc(100% - 160px) 100%, 100% calc(100% - 20px), 100% calc(100% - 20px),
+				calc(100% - 20px) 100%, calc(100% - 40px) 100%;
+			background-position: left, right, top, left, right, top, top;
+			image-rendering: crisp-edges;
+			image-rendering: pixelated;
+			z-index: 0;
+
+			display: grid;
+			place-items: center;
+
+			margin: 4rem -2rem 2rem -2rem;
+		}
+
+		.sha-table {
+			margin: 2rem -2rem 2rem -2rem;
+			table-layout: fixed;
+			width: calc(100% + 2rem);
+		}
+		.sha-table td {
+			background-color: var(--pbblue-dark);
+			padding: 0.5rem;
+		}
+		.sha-table td code {
+			word-wrap: break-word;
+		}
+	</style>
+	<body>
+		<div
+			class="page-container mx-auto w-full lg:max-w-4xl bg-pbblue text-white px-8 pb-4 sm:my-16 lg:shadow-2xl"
+		>
+			<ul
+				class="-mx-4 sm:pb-2 h-28 sm:h-auto pt-4 flex flex-col flex-wrap sm:flex-row items-start sm:items-center justify-start space-y-2 sm:space-y-0 sm:space-x-5 sm:place-content-between sm:px-16 border-b border-pbblue-dark"
+			>
+				<li><a class="menu-item" href="#build-the-rom">Build the ROM</a></li>
+				<li>
+					<a class="menu-item" href="#build-the-controller"
+						>Build the Controller</a
+					>
+				</li>
+				<li><a class="menu-item" href="#playing-tips">Playing Tips</a></li>
+				<li><a class="menu-item" href="#how-it-works">How it Works</a></li>
+				<li>
+					<a class="menu-item" href="https://github.com/city41/rotary-bobble"
+						>GitHub</a
+					>
+				</li>
+			</ul>
+			<div class="grid grid-cols-8 gap-8 auto-rows-min px-8 sm:px-0 mb-8">
+				<div
+					class="col-start-1 col-end-9 sm:col-start-1 sm:col-end-5 grid place-items-center"
+				>
+					<div class="flex flex-col h-full mt-16 gap-y-4">
+						<img src="images/title.png" alt="rotary bobble title" />
+						<h1 class="font-bold text-2xl text-center">
+							Puzzle Bobble, but with rotary controls
+						</h1>
+						<div
+							class="flex flex-col space-y-8 my-8 border-t-2 border-pbblue pt-8"
+						>
+							<p>
+								Rotary Bobble is a ROM hack for the Neo Geo game Puzzle Bobble.
+								It replaces the joystick controls with a rotary dial. A custom
+								controller is used to send angle values to the game as the dial
+								turns.
+							</p>
+							<p>
+								I always felt this is how the game should have been made. The
+								rotary controls are much more accurate and more fun to use.
+							</p>
+						</div>
+						<div class="flex-1"></div>
+					</div>
+				</div>
+				<div
+					class="col-start-1 col-end-9 sm:h-auto sm:col-start-5 sm:col-end-9 self-stretch"
+				>
+					<video class="mt-4 w-full h-full" autoplay muted controls>
+						<source src="./rotaryCloseup.mp4" type="video/mp4" />
+						Your browser does not support the video tag.
+					</video>
+				</div>
+			</div>
+			<div class="heading-container sticky top-0" id="build-the-rom">
+				<h2 class="heading text-xl font-bold py-4">Build the ROM</h2>
+			</div>
+			<p class="bg-yellow-200 p-4 -mx-4 sm:mx-8 text-yellow-900">
+				The game ROM needs to be altered with IPS patches. This will add the
+				rotary control logic to the game.
+			</p>
+			<div>
+				<ol class="list-decimal ml-8 my-8 flex flex-col gap-y-4">
+					<li>
+						Copy <code>pbobblen.zip</code> from your MAME roms into a directory
+						somewhere
+					</li>
+					<li>
+						Download the latest <code>rotaryBobbleIpsPatches.zip</code> release
+						from
+						<a href="https://github.com/city41/rotary-bobble/releases">here</a>
+						into that directory
+					</li>
+					<li>Unzip both</li>
+					<li>
+						Verify the three files below have the same sha (or skip this and
+						just try the result and see if it works)
+						<table class="sha-table">
+							<tbody>
+								<tr>
+									<td class="w-1/3 text-right">d96-02.c5</td>
+									<td>
+										<code>69c9ea415773af94ac44c48af05d55ada222b138</code>
+									</td>
+								</tr>
+								<tr>
+									<td class="w-1/3 text-right">d96-03.c6</td>
+									<td>
+										<code>042ae50a528cea21cf07771d3915c57aa16fd5af</code>
+									</td>
+								</tr>
+								<tr>
+									<td class="w-1/3 text-right">d96-07.ep1</td>
+									<td>
+										<code>328429d11de5b327a0654ae0548da4d0025a2ae6</code>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</li>
+					<li>
+						Run an IPS patcher for the three files. If you don't have one, you
+						can use this
+						<a href="https://www.romhacking.net/patch/" target="_blank"
+							>online one</a
+						>.
+					</li>
+					<li>
+						Make sure the newly patched files have the same name as the
+						originals
+					</li>
+					<li>Rezip all the files back up into a pbobblen.zip file</li>
+				</ol>
+			</div>
+			<p class="bg-yellow-200 p-4 -mx-4 sm:mx-8 text-yellow-900">
+				From here you can load the ROM into a flashcart like the TerraOnion
+				NeoSD or Darksoft's Multi Cartridge, or onto something like the MiSTer.
+				You can play the ROM in an emulator like MAME, but getting a proper
+				controller to work in that environment is more difficult.
+			</p>
+			<div class="heading-container sticky top-0" id="build-the-controller">
+				<h2 class="heading text-xl font-bold py-4">Build the Controller</h2>
+			</div>
+			<p class="bg-yellow-200 p-4 -mx-4 sm:mx-8 text-yellow-900">
+				The game needs a custom controller built with an Arduino, a
+				potentiometer and some transistors
+			</p>
+			<div class="my-4 px-8 flex flex-col gap-y-8">
+				<div class="flex flex-col sm:flex-row gap-y-4 sm:gap-x-4 py-8">
+					<p class="sm:w-1/2">
+						More to come on the controller, I'm still experimenting in this
+						area. A schematic that uses an Arduino Nano is
+						<a
+							href="https://github.com/city41/rotary-bobble/tree/main/src/arduino"
+							>here</a
+						>. If you are good with electronics and microcontrollers and want to
+						help out, let me know on
+						<a href="https://github.com/city41/rotary-bobble/discussions"
+							>GitHub</a
+						>.
+					</p>
+					<img
+						class="sm:w-1/2"
+						src="images/arduinoKicadSchematic.svg"
+						alt="high score entry screen"
+					/>
+				</div>
+			</div>
+			<div class="heading-container sticky top-0" id="playing-tips">
+				<h2 class="heading text-xl font-bold py-4">Playing Tips</h2>
+			</div>
+			<div class="my-4 px-8 flex flex-col gap-y-8">
+				<div class="flex flex-col sm:flex-row gap-y-4 sm:gap-x-4 py-8">
+					<p class="sm:w-1/2">
+						Difficulty select, number of player select and high score name entry
+						are all done with rotary controls. It might take a little bit to get
+						used to this. The high score screen's timer was increased to 99 to
+						help a bit.
+					</p>
+					<img
+						class="sm:w-1/2"
+						src="images/highScoreEntry.png"
+						alt="high score entry screen"
+					/>
+				</div>
+				<div
+					class="flex flex-col sm:flex-row gap-y-4 sm:gap-x-4 bg-pbblue-dark -mx-16 px-16 py-8"
+				>
+					<p class="sm:w-1/2">
+						You can switch to joystick controls by holding start for 1.5
+						seconds. It will show what you just switched to for a moment on the
+						side of the screen. Each player can do this. Useful if you want to
+						play a two player game but only have one rotary controller.
+					</p>
+					<img
+						class="sm:w-1/2"
+						src="images/toggleStrings.png"
+						alt="Indicating whether joystick or rotary is the current control scheme"
+					/>
+				</div>
+				<div class="flex flex-col sm:flex-row gap-y-4 sm:gap-x-4 py-8">
+					<p class="sm:w-1/2">
+						At the title screen, the version of the hack is shown. Please
+						include this version if
+						<a href="https://github.com/city41/rotary-bobble/issues"
+							>reporting a bug</a
+						>. To see this on MVS, don't insert a coin during the eyecatcher and
+						wait for the title screen.
+					</p>
+					<img
+						class="sm:w-1/2"
+						src="images/versionString.png"
+						alt="title screen with version displayed"
+					/>
+				</div>
+			</div>
+			<div class="heading-container sticky top-0" id="how-it-works">
+				<h2 class="heading text-xl font-bold py-4">How it Works</h2>
+			</div>
+			<div class="my-4 px-8 flex flex-col gap-y-8">
+				<div class="flex flex-col sm:flex-row gap-y-4 sm:gap-x-4 py-8">
+					<p class="sm:w-1/3">
+						The controller has a potentiometer that sends a varying voltage to
+						the Arduino based on its position. The Arduino converts that voltage
+						into an angle value
+					</p>
+					<img
+						class="sm:w-2/3"
+						src="images/howItWorks/start.svg"
+						alt="high score entry screen"
+					/>
+				</div>
+				<div
+					class="flex flex-col sm:flex-row gap-y-4 sm:gap-x-4 bg-pbblue-dark -mx-16 px-16 py-8"
+				>
+					<p class="sm:w-1/3">
+						It then sends that value to the Neo Geo using the controller port.
+						Directions left, right, up and down, plus the buttons B, C and D are
+						used as seven bits to send the number on
+					</p>
+					<img
+						class="sm:w-2/3"
+						src="images/howItWorks/sendingBits.svg"
+						alt="Indicating whether joystick or rotary is the current control scheme"
+					/>
+				</div>
+				<div class="flex flex-col sm:flex-row gap-y-4 sm:gap-x-4 py-8">
+					<p class="sm:w-1/3">
+						The game receives this input on the controller port. Which normally
+						it wouldn't understand...
+					</p>
+					<img
+						class="sm:w-2/3"
+						src="images/howItWorks/neoAsk11001.svg"
+						alt="title screen with version displayed"
+					/>
+				</div>
+				<div
+					class="flex flex-col sm:flex-row gap-y-4 sm:gap-x-4 bg-pbblue-dark -mx-16 px-16 py-8"
+				>
+					<p class="sm:w-1/3">
+						... but the game was changed to know how to convert these bits
+						coming from the controller port back into an angle value.
+					</p>
+					<img
+						class="sm:w-2/3"
+						src="images/howItWorks/ohThats25.svg"
+						alt="Indicating whether joystick or rotary is the current control scheme"
+					/>
+				</div>
+				<div class="flex flex-col sm:flex-row gap-y-4 sm:gap-x-4 py-8">
+					<p class="sm:w-1/3">
+						It then tells the shooter to position itself based on this angle
+					</p>
+					<img
+						class="sm:w-2/3"
+						src="images/howItWorks/hey25.svg"
+						alt="title screen with version displayed"
+					/>
+				</div>
+				<div
+					class="flex flex-col sm:flex-row gap-y-4 sm:gap-x-4 bg-pbblue-dark -mx-16 px-16 py-8"
+				>
+					<p class="sm:w-1/3">
+						This happens sixty times per second, resulting in smooth rotary
+						controls
+					</p>
+					<img
+						class="sm:w-2/3"
+						src="images/howItWorks/final.svg"
+						alt="Indicating whether joystick or rotary is the current control scheme"
+					/>
+				</div>
+			</div>
+			<div class="mt-16 mb-4 flex flex-col items-center text-xs">
+				<div>
+					Hack created by <a href="https://mattgreer.dev">Matt Greer</a>
+				</div>
+				<div>Original game by Taito</div>
+			</div>
+		</div>
+	</body>
+</html>
