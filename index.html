@@ -15,6 +15,7 @@
 		<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5" />
 		<meta name="msapplication-TileColor" content="#da532c" />
 		<meta name="theme-color" content="#ffffff" />
+		<script src="/_vercel/insights/script.js" defer></script>
 		<style>
 			:root {
 				--pbblue: #2c56a9;
@@ -206,63 +207,11 @@
 				<h2 class="heading text-xl font-bold py-4">Build the ROM</h2>
 			</div>
 			<p class="bg-yellow-200 p-4 -mx-4 sm:mx-8 text-yellow-900">
-				The game ROM needs to be altered with IPS patches. This will add the
-				rotary control logic to the game.
+				The ROM can easily be built at my
+				<a href="https://neorh.mattgreer.dev/pbobblen"
+					>Neo Geo ROM hack website</a
+				>.
 			</p>
-			<div>
-				<ol class="list-decimal ml-8 my-8 flex flex-col gap-y-4">
-					<li>
-						Copy <code>pbobblen.zip</code> from your MAME roms into a directory
-						somewhere
-					</li>
-					<li>
-						Download the latest
-						<a href="https://github.com/city41/rotary-bobble/releases"
-							>rotaryBobbleIpsPatches.zip release</a
-						>
-						into that directory
-					</li>
-					<li>Unzip both</li>
-					<li>
-						Verify the three files below have the same sha (or skip this and
-						just try the result and see if it works)
-						<table class="sha-table">
-							<tbody>
-								<tr>
-									<td class="w-1/3 text-right">d96-02.c5</td>
-									<td>
-										<code>69c9ea415773af94ac44c48af05d55ada222b138</code>
-									</td>
-								</tr>
-								<tr>
-									<td class="w-1/3 text-right">d96-03.c6</td>
-									<td>
-										<code>042ae50a528cea21cf07771d3915c57aa16fd5af</code>
-									</td>
-								</tr>
-								<tr>
-									<td class="w-1/3 text-right">d96-07.ep1</td>
-									<td>
-										<code>328429d11de5b327a0654ae0548da4d0025a2ae6</code>
-									</td>
-								</tr>
-							</tbody>
-						</table>
-					</li>
-					<li>
-						Run an IPS patcher for the three files. If you don't have one, you
-						can use this
-						<a href="https://www.romhacking.net/patch/" target="_blank"
-							>online one</a
-						>.
-					</li>
-					<li>
-						Make sure the newly patched files have the same name as the
-						originals
-					</li>
-					<li>Rezip all the files back up into a pbobblen.zip file</li>
-				</ol>
-			</div>
 			<p class="bg-yellow-200 p-4 -mx-4 sm:mx-8 text-yellow-900">
 				From here you can load the ROM into a flashcart like the TerraOnion
 				NeoSD or Darksoft's Multi Cartridge, or onto something like the MiSTer.
